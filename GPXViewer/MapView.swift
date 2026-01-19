@@ -57,6 +57,10 @@ struct MapView: UIViewRepresentable {
             coordinator.tileOverlay = overlay
             coordinator.currentProvider = provider
             mapView.addOverlay(overlay, level: .aboveLabels)
+            if let polyline = coordinator.polyline {
+                mapView.removeOverlay(polyline)
+                mapView.addOverlay(polyline, level: .aboveLabels)
+            }
         } else {
             coordinator.tileOverlay?.offlineMode = offlineMode
         }
