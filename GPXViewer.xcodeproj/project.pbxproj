@@ -29,7 +29,31 @@
 		E65DE69CC5AF4A8481D17D8E /* AttributionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BBDC8DFBEB4CA3B2BD327B /* AttributionView.swift */; };
 		E87D225255FB4DF9BEA87225 /* GPXParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA70279BD3964681AF5954C1 /* GPXParser.swift */; };
 		FA0CD51178C0483293F635D8 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8255C7432A94495C80E438C2 /* LocationManager.swift */; };
+		1AB58B42054D45B0AB2627ED /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B54035CE1A43998E4099AF /* XCTest.framework */; };
+		2D5B67D46974489A99A5A22B /* TrackStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */; };
+		5ED6572A355F47C6BF0EE8E3 /* BaseMapProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59E10215344A95A2C4C2A7 /* BaseMapProviderTests.swift */; };
+		7755FA435E6B455EA4874702 /* GPXParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5722C9EB0C4D9D8C217451 /* GPXParserTests.swift */; };
+		77AD44773E0D407DBDAAB5F4 /* TileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F13E6AA6584133BD066028 /* TileCacheTests.swift */; };
+		80CF1401DBC54C21AE615D3D /* GPXViewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421DA7B510C14AF99B3F076F /* GPXViewerUITests.swift */; };
+		D31BD411B94A48728E8C7DB4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B54035CE1A43998E4099AF /* XCTest.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A06159841E904D739B848127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 394350DDCA6546AABE0F98B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9F92CB12FA544C10B1B99F07 /* GPXViewer */;
+			remoteInfo = GPXViewer;
+		};
+		51ECD2A5E8E34DED88968564 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 394350DDCA6546AABE0F98B2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9F92CB12FA544C10B1B99F07 /* GPXViewer */;
+			remoteInfo = GPXViewer;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		01F78EA7C3A74D3D999937C7 /* BannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerView.swift; sourceTree = "<group>"; };
@@ -56,6 +80,14 @@
 		E4F051D90FAA4395A54438ED /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		F417A716BCA2413CA6734381 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		F49BD94B200D4E90A421F832 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		29B54035CE1A43998E4099AF /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
+		4B159E555ABF4A4688D5B412 /* GPXViewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GPXViewerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0416CF2C3E2F4C1EA7428B1D /* GPXViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GPXViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		421DA7B510C14AF99B3F076F /* GPXViewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPXViewerUITests.swift; sourceTree = "<group>"; };
+		6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackStatsTests.swift; sourceTree = "<group>"; };
+		97F13E6AA6584133BD066028 /* TileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileCacheTests.swift; sourceTree = "<group>"; };
+		AC5722C9EB0C4D9D8C217451 /* GPXParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPXParserTests.swift; sourceTree = "<group>"; };
+		CB59E10215344A95A2C4C2A7 /* BaseMapProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseMapProviderTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +100,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8B5F1BD6F22A4BAFAC48B04E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AB58B42054D45B0AB2627ED /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43EF70A5FC0646D49859188E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D31BD411B94A48728E8C7DB4 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -76,6 +124,7 @@
 			children = (
 				7A1881DAAC534C85953E4C36 /* MapKit.framework */,
 				E4F051D90FAA4395A54438ED /* CoreLocation.framework */,
+				29B54035CE1A43998E4099AF /* XCTest.framework */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -84,6 +133,8 @@
 			isa = PBXGroup;
 			children = (
 				2FBE058231534C959F41D322 /* GPXViewer.app */,
+				4B159E555ABF4A4688D5B412 /* GPXViewerTests.xctest */,
+				0416CF2C3E2F4C1EA7428B1D /* GPXViewerUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -91,9 +142,30 @@
 			isa = PBXGroup;
 			children = (
 				EB241F61475944A88EFA5A9F /* GPXViewer */,
+				1B4923198E5745C69833C8A0 /* GPXViewerTests */,
+				7D56590CFBC54DEE89DF7A6D /* GPXViewerUITests */,
 				3E0D42D4993E49B0B43E12C1,
 				3718F8E92F1DF5A300920EC7 /* Recovered References */,
 			);
+			sourceTree = "<group>";
+		};
+		1B4923198E5745C69833C8A0 /* GPXViewerTests */ = {
+			isa = PBXGroup;
+			children = (
+				CB59E10215344A95A2C4C2A7 /* BaseMapProviderTests.swift */,
+				AC5722C9EB0C4D9D8C217451 /* GPXParserTests.swift */,
+				97F13E6AA6584133BD066028 /* TileCacheTests.swift */,
+				6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */,
+			);
+			path = GPXViewerTests;
+			sourceTree = "<group>";
+		};
+		7D56590CFBC54DEE89DF7A6D /* GPXViewerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				421DA7B510C14AF99B3F076F /* GPXViewerUITests.swift */,
+			);
+			path = GPXViewerUITests;
 			sourceTree = "<group>";
 		};
 		EB241F61475944A88EFA5A9F /* GPXViewer */ = {
@@ -144,6 +216,42 @@
 			productReference = 2FBE058231534C959F41D322 /* GPXViewer.app */;
 			productType = "com.apple.product-type.application";
 		};
+		4CFDD0B27EBD49A1A65D50B9 /* GPXViewerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E455E5C3C780429CAC6ABB8A /* Build configuration list for PBXNativeTarget "GPXViewerTests" */;
+			buildPhases = (
+				7859A7E08FF640A18701E11F /* Sources */,
+				8B5F1BD6F22A4BAFAC48B04E /* Frameworks */,
+				931F6EAFAD254547B0131684 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9649EF24B69E490AB8184FB7 /* PBXTargetDependency */,
+			);
+			name = GPXViewerTests;
+			productName = GPXViewerTests;
+			productReference = 4B159E555ABF4A4688D5B412 /* GPXViewerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		6C03A040A7DC48C7AF1874E1 /* GPXViewerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 577F1A4AA8F74917A2166934 /* Build configuration list for PBXNativeTarget "GPXViewerUITests" */;
+			buildPhases = (
+				8959CE7511CA43D1BBB28B4F /* Sources */,
+				43EF70A5FC0646D49859188E /* Frameworks */,
+				B08822DD39214D6B9E6A1188 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3A79C4DC673B4B4DAE93776B /* PBXTargetDependency */,
+			);
+			name = GPXViewerUITests;
+			productName = GPXViewerUITests;
+			productReference = 0416CF2C3E2F4C1EA7428B1D /* GPXViewerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -167,6 +275,8 @@
 			projectRoot = "";
 			targets = (
 				9F92CB12FA544C10B1B99F07 /* GPXViewer */,
+				4CFDD0B27EBD49A1A65D50B9 /* GPXViewerTests */,
+				6C03A040A7DC48C7AF1874E1 /* GPXViewerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -177,6 +287,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				84BC5BF5C8E146E395C8A8F4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		931F6EAFAD254547B0131684 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B08822DD39214D6B9E6A1188 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,7 +333,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7859A7E08FF640A18701E11F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5ED6572A355F47C6BF0EE8E3 /* BaseMapProviderTests.swift in Sources */,
+				7755FA435E6B455EA4874702 /* GPXParserTests.swift in Sources */,
+				77AD44773E0D407DBDAAB5F4 /* TileCacheTests.swift in Sources */,
+				2D5B67D46974489A99A5A22B /* TrackStatsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8959CE7511CA43D1BBB28B4F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80CF1401DBC54C21AE615D3D /* GPXViewerUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9649EF24B69E490AB8184FB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9F92CB12FA544C10B1B99F07 /* GPXViewer */;
+			targetProxy = A06159841E904D739B848127 /* PBXContainerItemProxy */;
+		};
+		3A79C4DC673B4B4DAE93776B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9F92CB12FA544C10B1B99F07 /* GPXViewer */;
+			targetProxy = 51ECD2A5E8E34DED88968564 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		003ECCA633B143E29B969813 /* Debug */ = {
@@ -352,6 +508,78 @@
 			};
 			name = Release;
 		};
+		9284D3B819D34EA6A73AF740 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 86PJ97RS6Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ee.impero.gpxviewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPXViewer.app/GPXViewer";
+			};
+			name = Debug;
+		};
+		96ECF17765B247A6B892E396 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ee.impero.gpxviewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GPXViewer.app/GPXViewer";
+			};
+			name = Release;
+		};
+		2ADFD332EBF040F7986CC7FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 86PJ97RS6Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ee.impero.gpxviewerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = GPXViewer;
+			};
+			name = Debug;
+		};
+		7591D2E519684D91947559DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ee.impero.gpxviewerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = GPXViewer;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -360,6 +588,24 @@
 			buildConfigurations = (
 				84542C5355FA4E1A959C7ACB /* Debug */,
 				AE66E344A0A24023B6FF10A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E455E5C3C780429CAC6ABB8A /* Build configuration list for PBXNativeTarget "GPXViewerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9284D3B819D34EA6A73AF740 /* Debug */,
+				96ECF17765B247A6B892E396 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		577F1A4AA8F74917A2166934 /* Build configuration list for PBXNativeTarget "GPXViewerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2ADFD332EBF040F7986CC7FE /* Debug */,
+				7591D2E519684D91947559DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -64,7 +64,7 @@ Updated: 2026-01-19
 - Performance: map remains responsive with large libraries; list filtering must feel instant.
 - Footprint: Swift/SwiftUI app; minimal third-party dependencies.
 - Compatibility: iOS 16+; supports iPhone only.
-- Testing: no automated tests yet.
+- Testing: unit tests cover GPX parsing, track stats, base map URLs, and tile cache; UI tests cover tab navigation and settings/base map selection.
 
 ## Constraints and Open Questions
 - Tile provider rate limits and legal terms must be observed; no throttling built in.
