@@ -1,0 +1,36 @@
+# Xcode
+*.xcworkspace
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcshareddata/WorkspaceSettings.xcsettings
+*.xcodeproj/xcshareddata/swiftpm/Package.resolved
+*.xcodeproj/xcshareddata/IDEWorkspaceChecks.plist
+xcuserdata/
+DerivedData/
+# Swift Package Manager
+.build/
+Package.resolved
+# CocoaPods
+Pods/
+# Carthage
+Carthage/Build/
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+# Archives
+*.xcarchive
+# Logs
+*.log
+# Xcode previews
+**/Previews/Generated/
+# Code coverage
+*.profdata
+# Instruments
+*.trace
+# Android Studio / IntelliJ (just in case)
+*.iml
+.idea/
+
+.DS_Store
