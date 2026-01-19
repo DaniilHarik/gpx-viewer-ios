@@ -35,14 +35,14 @@ struct MapScreen: View {
             }
 
             VStack {
-                Spacer()
-
                 if let track = libraryStore.currentTrack, showInfoPanel {
                     TrackInfoView(stats: track.stats)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 12)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.top, bannerCenter.message == nil ? 12 : 64)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
+
+                Spacer()
             }
 
             if let attribution = settings.baseMap.attributionText {
@@ -101,7 +101,7 @@ struct MapScreen: View {
     }
 
     private var buttonBottomPadding: CGFloat {
-        (libraryStore.currentTrack != nil && showInfoPanel) ? 96 : 16
+        16
     }
 
     private func toggleFollow() {
