@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject private var libraryStore: LibraryStore
+    @Binding var selectedTab: Int
 
     @State private var searchText = ""
     @State private var showingImporter = false
@@ -86,6 +87,7 @@ struct LibraryView: View {
             libraryStore.deselect()
         } else {
             libraryStore.select(file)
+            selectedTab = 0
         }
     }
 

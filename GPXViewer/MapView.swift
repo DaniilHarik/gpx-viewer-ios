@@ -168,7 +168,7 @@ struct MapView: UIViewRepresentable {
     }
 
     private func updateTracking(on mapView: MKMapView) {
-        let mode: MKUserTrackingMode = followUser ? .followWithHeading : .none
+        let mode: MKUserTrackingMode = followUser ? .follow : .none
         if mapView.userTrackingMode != mode {
             mapView.setUserTrackingMode(mode, animated: true)
         }
