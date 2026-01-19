@@ -9,7 +9,10 @@ struct MapView: UIViewRepresentable {
     let showsDistanceMarkers: Bool
     let followUser: Bool
     let showsUserLocation: Bool
+    let measurementPoints: [CLLocationCoordinate2D]
+    let measurementEnabled: Bool
     let onUserInteraction: () -> Void
+    let onMeasureTap: (CLLocationCoordinate2D) -> Void
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -32,8 +35,14 @@ struct MapView: UIViewRepresentable {
         pinchGesture.delegate = context.coordinator
         mapView.addGestureRecognizer(pinchGesture)
 
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleMapTap(_:)))
+        tapGesture.delegate = context.coordinator
+        tapGesture.cancelsTouchesInView = false
+        mapView.addGestureRecognizer(tapGesture)
+
         updateTileOverlay(on: mapView, coordinator: context.coordinator)
         updatePolyline(on: mapView, coordinator: context.coordinator)
+        updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
 
@@ -45,6 +54,7 @@ struct MapView: UIViewRepresentable {
         mapView.showsUserLocation = showsUserLocation
         updateTileOverlay(on: mapView, coordinator: context.coordinator)
         updatePolyline(on: mapView, coordinator: context.coordinator)
+        updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
     }
@@ -63,6 +73,10 @@ struct MapView: UIViewRepresentable {
             if let polyline = coordinator.polyline {
                 mapView.removeOverlay(polyline)
                 mapView.addOverlay(polyline, level: .aboveLabels)
+            }
+            if let measurementPolyline = coordinator.measurementPolyline {
+                mapView.removeOverlay(measurementPolyline)
+                mapView.addOverlay(measurementPolyline, level: .aboveLabels)
             }
         } else {
             coordinator.tileOverlay?.offlineMode = offlineMode
@@ -161,10 +175,64 @@ struct MapView: UIViewRepresentable {
         return markers
     }
 
+    private func updateMeasurementOverlay(on mapView: MKMapView, coordinator: Coordinator) {
+        guard measurementEnabled, !measurementPoints.isEmpty else {
+            if let polyline = coordinator.measurementPolyline {
+                mapView.removeOverlay(polyline)
+                coordinator.measurementPolyline = nil
+            }
+            if !coordinator.measurementPointAnnotations.isEmpty {
+                mapView.removeAnnotations(coordinator.measurementPointAnnotations)
+                coordinator.measurementPointAnnotations.removeAll()
+            }
+            coordinator.measurementPointCount = 0
+            coordinator.measurementLastCoordinate = nil
+            coordinator.measurementEnabled = measurementEnabled
+            return
+        }
+
+        let lastCoordinate = measurementPoints[measurementPoints.count - 1]
+        if coordinator.measurementPointCount == measurementPoints.count,
+           coordinator.measurementEnabled == measurementEnabled,
+           let previousLast = coordinator.measurementLastCoordinate,
+           coordinatesMatch(previousLast, lastCoordinate) {
+            return
+        }
+
+        if let polyline = coordinator.measurementPolyline {
+            mapView.removeOverlay(polyline)
+        }
+        if !coordinator.measurementPointAnnotations.isEmpty {
+            mapView.removeAnnotations(coordinator.measurementPointAnnotations)
+        }
+
+        if measurementPoints.count > 1 {
+            let polyline = MKPolyline(coordinates: measurementPoints, count: measurementPoints.count)
+            coordinator.measurementPolyline = polyline
+            mapView.addOverlay(polyline, level: .aboveLabels)
+        } else {
+            coordinator.measurementPolyline = nil
+        }
+
+        let annotations = measurementPoints.map { MeasurementPointAnnotation(coordinate: $0) }
+        coordinator.measurementPointAnnotations = annotations
+        if !annotations.isEmpty {
+            mapView.addAnnotations(annotations)
+        }
+
+        coordinator.measurementPointCount = measurementPoints.count
+        coordinator.measurementLastCoordinate = lastCoordinate
+        coordinator.measurementEnabled = measurementEnabled
+    }
+
     private func interpolateCoordinate(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, fraction: Double) -> CLLocationCoordinate2D {
         let latitude = start.latitude + (end.latitude - start.latitude) * fraction
         let longitude = start.longitude + (end.longitude - start.longitude) * fraction
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    private func coordinatesMatch(_ lhs: CLLocationCoordinate2D, _ rhs: CLLocationCoordinate2D) -> Bool {
+        lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
     }
 
     private func updateTracking(on mapView: MKMapView) {
@@ -184,6 +252,11 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var distanceMarkers: [MKAnnotation] = []
     var distanceMarkersTrackID: UUID?
     var distanceMarkersEnabled = false
+    var measurementPolyline: MKPolyline?
+    var measurementPointAnnotations: [MKAnnotation] = []
+    var measurementPointCount = 0
+    var measurementLastCoordinate: CLLocationCoordinate2D?
+    var measurementEnabled = false
     private var userInteracting = false
 
     init(parent: MapView) {
@@ -200,6 +273,15 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
         true
     }
 
+    @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
+        guard gesture.state == .ended else { return }
+        guard parent.measurementEnabled else { return }
+        guard let mapView = gesture.view as? MKMapView else { return }
+        let point = gesture.location(in: mapView)
+        let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
+        parent.onMeasureTap(coordinate)
+    }
+
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         if userInteracting {
             userInteracting = false
@@ -213,6 +295,16 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
         }
 
         if let polyline = overlay as? MKPolyline {
+            if polyline === measurementPolyline {
+                let renderer = MKPolylineRenderer(polyline: polyline)
+                renderer.strokeColor = UIColor.systemOrange
+                renderer.lineWidth = 3
+                renderer.lineDashPattern = [4, 6]
+                renderer.lineJoin = .round
+                renderer.lineCap = .round
+                return renderer
+            }
+
             let renderer = MKPolylineRenderer(polyline: polyline)
             renderer.strokeColor = UIColor.systemBlue
             renderer.lineWidth = 4
@@ -236,6 +328,13 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
             return view
         }
 
+        if let marker = annotation as? MeasurementPointAnnotation {
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: MeasurementPointAnnotationView.reuseIdentifier) as? MeasurementPointAnnotationView
+                ?? MeasurementPointAnnotationView(annotation: marker, reuseIdentifier: MeasurementPointAnnotationView.reuseIdentifier)
+            view.annotation = marker
+            return view
+        }
+
         return nil
     }
 }
@@ -249,6 +348,38 @@ final class DistanceMarkerAnnotation: NSObject, MKAnnotation {
         self.coordinate = coordinate
         self.kmValue = kmValue
         super.init()
+    }
+}
+
+final class MeasurementPointAnnotation: NSObject, MKAnnotation {
+    let coordinate: CLLocationCoordinate2D
+
+    init(coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+        super.init()
+    }
+}
+
+final class MeasurementPointAnnotationView: MKAnnotationView {
+    static let reuseIdentifier = "MeasurementPointAnnotationView"
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        configureView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configureView()
+    }
+
+    private func configureView() {
+        frame = CGRect(x: 0, y: 0, width: 12, height: 12)
+        backgroundColor = UIColor.systemOrange
+        layer.cornerRadius = 6
+        layer.borderWidth = 2
+        layer.borderColor = UIColor.white.cgColor
+        canShowCallout = false
     }
 }
 

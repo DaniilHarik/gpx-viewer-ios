@@ -9,6 +9,8 @@ struct MapScreen: View {
 
     @State private var followUser = false
     @State private var showInfoPanel = false
+    @State private var measurementEnabled = false
+    @State private var measurementPoints: [CLLocationCoordinate2D] = []
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -19,11 +21,16 @@ struct MapScreen: View {
                 showsDistanceMarkers: settings.distanceMarkersEnabled,
                 followUser: followUser,
                 showsUserLocation: followUser,
+                measurementPoints: measurementPoints,
+                measurementEnabled: measurementEnabled,
                 onUserInteraction: {
                     if followUser {
                         followUser = false
                         locationManager.stopUpdating()
                     }
+                },
+                onMeasureTap: { coordinate in
+                    measurementPoints.append(coordinate)
                 }
             )
             .ignoresSafeArea()
@@ -34,16 +41,25 @@ struct MapScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
-            VStack {
+            VStack(alignment: .leading, spacing: 8) {
+                if measurementEnabled {
+                    MeasurementSummaryView(
+                        summaryText: measurementSummaryText,
+                        pointCount: measurementPoints.count,
+                        onClear: { measurementPoints.removeAll() }
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 if let track = libraryStore.currentTrack, showInfoPanel {
                     TrackInfoView(stats: track.stats)
-                        .padding(.horizontal, 16)
-                        .padding(.top, bannerCenter.message == nil ? 12 : 64)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
                 Spacer()
             }
+            .padding(.horizontal, 16)
+            .padding(.top, bannerCenter.message == nil ? 12 : 64)
 
             if let attribution = settings.baseMap.attributionText {
                 VStack {
@@ -57,9 +73,22 @@ struct MapScreen: View {
             VStack {
                 Spacer()
                 HStack {
-                    if libraryStore.currentTrack != nil {
-                        Button(action: { showInfoPanel.toggle() }) {
-                            Image(systemName: showInfoPanel ? "info.circle.fill" : "info.circle")
+                    HStack(spacing: 12) {
+                        if libraryStore.currentTrack != nil {
+                            Button(action: { showInfoPanel.toggle() }) {
+                                Image(systemName: showInfoPanel ? "info.circle.fill" : "info.circle")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .padding(14)
+                                    .background(
+                                        Circle().fill(Color.black.opacity(0.75))
+                                    )
+                                    .shadow(radius: 6)
+                            }
+                        }
+
+                        Button(action: toggleMeasurement) {
+                            Image(systemName: measurementEnabled ? "ruler.fill" : "ruler")
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundStyle(.white)
                                 .padding(14)
@@ -68,9 +97,9 @@ struct MapScreen: View {
                                 )
                                 .shadow(radius: 6)
                         }
-                        .padding(.leading, 16)
-                        .padding(.bottom, buttonBottomPadding)
                     }
+                    .padding(.leading, 16)
+                    .padding(.bottom, buttonBottomPadding)
 
                     Spacer()
                     Button(action: toggleFollow) {
@@ -104,6 +133,37 @@ struct MapScreen: View {
         16
     }
 
+    private var measurementSummaryText: String {
+        if measurementPoints.isEmpty {
+            return "Tap map to add points"
+        }
+        if measurementPoints.count == 1 {
+            return "Tap another point"
+        }
+        return measurementDistanceText
+    }
+
+    private var measurementDistanceText: String {
+        let distance = measurementDistance
+        if distance < 1000 {
+            return String(format: "%.0f m", distance)
+        }
+        return String(format: "%.2f km", distance / 1000.0)
+    }
+
+    private var measurementDistance: CLLocationDistance {
+        guard measurementPoints.count > 1 else { return 0 }
+        var distance: CLLocationDistance = 0
+        var previous = measurementPoints[0]
+        for coordinate in measurementPoints.dropFirst() {
+            let prevLoc = CLLocation(latitude: previous.latitude, longitude: previous.longitude)
+            let currLoc = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            distance += currLoc.distance(from: prevLoc)
+            previous = coordinate
+        }
+        return distance
+    }
+
     private func toggleFollow() {
         if followUser {
             followUser = false
@@ -114,5 +174,45 @@ struct MapScreen: View {
         locationManager.requestWhenInUse()
         locationManager.startUpdating()
         followUser = true
+    }
+
+    private func toggleMeasurement() {
+        measurementEnabled.toggle()
+    }
+}
+
+private struct MeasurementSummaryView: View {
+    let summaryText: String
+    let pointCount: Int
+    let onClear: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Measure")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.8))
+                Text(summaryText)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+            }
+
+            Spacer(minLength: 0)
+
+            if pointCount > 0 {
+                Button(action: onClear) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .accessibilityLabel("Clear measurement")
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            Capsule().fill(Color.black.opacity(0.75))
+        )
+        .shadow(radius: 6)
     }
 }

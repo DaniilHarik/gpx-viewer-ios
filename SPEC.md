@@ -19,6 +19,7 @@ Updated: 2026-01-19
   - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
   - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
   - Current location: "locate me" button toggles follow-user; panning the map stops following.
+  - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; measurements are separate from tracks.
 
  
 ## Functional Requirements
@@ -39,6 +40,9 @@ Updated: 2026-01-19
   - Cache keys include provider, z/x/y, and file extension; do not cache 4xx/5xx responses.
   - Cache size cap (default 1 GB) with LRU eviction; trimming runs in the background and never blocks map interaction. Users can clear the cache in Settings; size is not user-configurable.
   - Offline mode uses cache-only reads; misses surface as empty tiles without retrying.
+- Map tools
+  - Measurement mode draws a dashed line between tapped points and shows the cumulative distance.
+  - Clear action removes measurement points without affecting tracks or track markers.
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
   - Optional 1 km distance markers render along the track when enabled.
