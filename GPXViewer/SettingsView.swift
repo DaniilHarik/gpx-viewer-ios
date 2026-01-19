@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 struct SettingsView: View {
@@ -7,6 +8,7 @@ struct SettingsView: View {
     @State private var showResetConfirm = false
     @State private var showCacheConfirm = false
     @State private var showDiagnostics = false
+    @State private var cacheSizeText = "Calculating..."
 
     var body: some View {
         NavigationStack {
@@ -46,6 +48,13 @@ struct SettingsView: View {
                 }
 
                 Section(header: Text("Tile Cache")) {
+                    HStack {
+                        Text("Cache Size")
+                        Spacer()
+                        Text(cacheSizeText)
+                            .foregroundStyle(.secondary)
+                    }
+
                     Button("Clear Tile Cache") {
                         showCacheConfirm = true
                     }
@@ -72,13 +81,26 @@ struct SettingsView: View {
             }
             .confirmationDialog("Clear tile cache?", isPresented: $showCacheConfirm) {
                 Button("Clear", role: .destructive) {
-                    TileCache.shared.clearAll()
+                    TileCache.shared.clearAll {
+                        refreshCacheSize()
+                    }
                 }
                 Button("Cancel", role: .cancel) {}
             }
             .navigationDestination(isPresented: $showDiagnostics) {
                 DiagnosticsView()
             }
+            .task {
+                refreshCacheSize()
+            }
+        }
+    }
+
+    private func refreshCacheSize() {
+        TileCache.shared.currentSize { size in
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = .file
+            cacheSizeText = formatter.string(fromByteCount: size)
         }
     }
 }

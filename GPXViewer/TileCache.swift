@@ -83,6 +83,15 @@ final class TileCache {
         }
     }
 
+    func currentSize(completion: @escaping (Int64) -> Void) {
+        ioQueue.async {
+            let size = self.calculateSize()
+            DispatchQueue.main.async {
+                completion(size)
+            }
+        }
+    }
+
     private func cacheURL(provider: BaseMapProvider, path: MKTileOverlayPath) -> URL {
         let base = baseCacheDirectory()
         let providerDir = base.appendingPathComponent(provider.rawValue, isDirectory: true)
@@ -95,6 +104,23 @@ final class TileCache {
     private func baseCacheDirectory() -> URL {
         let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: "/tmp")
         return caches.appendingPathComponent("TileCache", isDirectory: true)
+    }
+
+    private func calculateSize() -> Int64 {
+        let base = baseCacheDirectory()
+        guard let enumerator = fileManager.enumerator(at: base, includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey], options: [.skipsHiddenFiles]) else {
+            return 0
+        }
+
+        var totalSize: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey]) else {
+                continue
+            }
+            if values.isDirectory == true { continue }
+            totalSize += Int64(values.fileSize ?? 0)
+        }
+        return totalSize
     }
 
     private func trimIfNeeded() {
