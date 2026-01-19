@@ -5,6 +5,8 @@ struct LibraryView: View {
 
     @State private var searchText = ""
     @State private var showingImporter = false
+    @State private var pendingDeletion: [GPXFile] = []
+    @State private var showingDeleteConfirm = false
 
     var body: some View {
         NavigationStack {
@@ -24,6 +26,9 @@ struct LibraryView: View {
                             }
                             .buttonStyle(.plain)
                         }
+                        .onDelete { offsets in
+                            confirmDelete(in: year, offsets: offsets)
+                        }
                     }
                 }
             }
@@ -35,12 +40,26 @@ struct LibraryView: View {
                         Image(systemName: "square.and.arrow.down")
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    EditButton()
+                }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search files")
             .sheet(isPresented: $showingImporter) {
                 DocumentPicker { urls in
                     libraryStore.importFiles(urls)
                 }
+            }
+            .confirmationDialog("Delete Track", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+                Button("Delete", role: .destructive) {
+                    libraryStore.deleteFiles(pendingDeletion)
+                    pendingDeletion = []
+                }
+                Button("Cancel", role: .cancel) {
+                    pendingDeletion = []
+                }
+            } message: {
+                Text(pendingDeletion.count == 1 ? "This will permanently delete the track from your library." : "This will permanently delete the selected tracks from your library.")
             }
         }
     }
@@ -68,6 +87,17 @@ struct LibraryView: View {
         } else {
             libraryStore.select(file)
         }
+    }
+
+    private func confirmDelete(in year: Int, offsets: IndexSet) {
+        guard let files = sectionedFiles[year] else { return }
+        let toDelete = offsets.compactMap { index -> GPXFile? in
+            guard files.indices.contains(index) else { return nil }
+            return files[index]
+        }
+        guard !toDelete.isEmpty else { return }
+        pendingDeletion = toDelete
+        showingDeleteConfirm = true
     }
 }
 
@@ -101,5 +131,7 @@ private struct LibraryRow: View {
             }
         }
         .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }

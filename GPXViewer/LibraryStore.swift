@@ -118,6 +118,25 @@ final class LibraryStore: ObservableObject {
         currentError = nil
     }
 
+    func deleteFiles(_ filesToDelete: [GPXFile]) {
+        guard !filesToDelete.isEmpty else { return }
+        let urls = Set(filesToDelete.map { $0.url })
+
+        scanQueue.async {
+            for file in filesToDelete {
+                try? FileManager.default.removeItem(at: file.url)
+            }
+
+            DispatchQueue.main.async {
+                self.files.removeAll { urls.contains($0.url) }
+                self.parseErrors = self.parseErrors.filter { !urls.contains($0.key) }
+                if let selected = self.selectedFile, urls.contains(selected.url) {
+                    self.deselect()
+                }
+            }
+        }
+    }
+
     private func validateFiles(_ files: [GPXFile]) {
         validationQueue.async {
             var errors: [URL: String] = [:]
