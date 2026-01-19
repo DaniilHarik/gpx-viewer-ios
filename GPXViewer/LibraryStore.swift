@@ -40,7 +40,7 @@ final class LibraryStore: ObservableObject {
                 let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey])
                 if values?.isDirectory == true { continue }
                 guard fileURL.pathExtension.lowercased() == "gpx" else { continue }
-                let relativePath = fileURL.path.replacingOccurrences(of: docsURL.path + "/", with: "")
+                let relativePath = self.relativePath(for: fileURL, docsURL: docsURL)
                 let displayName = fileURL.deletingPathExtension().lastPathComponent
                 let sortDate = Self.dateFromFilename(displayName) ?? values?.contentModificationDate
                 let year = sortDate.flatMap { Calendar.current.dateComponents([.year], from: $0).year }
@@ -181,6 +181,26 @@ final class LibraryStore: ObservableObject {
         }
 
         return nil
+    }
+
+    private func relativePath(for fileURL: URL, docsURL: URL) -> String {
+        let filePath = normalizedPath(fileURL)
+        let docsPath = normalizedPath(docsURL)
+        if filePath.hasPrefix(docsPath + "/") {
+            return String(filePath.dropFirst(docsPath.count + 1))
+        }
+        if filePath.hasPrefix(docsPath) {
+            return String(filePath.dropFirst(docsPath.count))
+        }
+        return fileURL.lastPathComponent
+    }
+
+    private func normalizedPath(_ url: URL) -> String {
+        let standardized = url.standardizedFileURL.path
+        if standardized.hasPrefix("/private") {
+            return String(standardized.dropFirst("/private".count))
+        }
+        return standardized
     }
 }
 

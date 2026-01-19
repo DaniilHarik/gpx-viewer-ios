@@ -8,6 +8,7 @@ struct MapScreen: View {
     @EnvironmentObject private var bannerCenter: BannerCenter
 
     @State private var followUser = false
+    @State private var showInfoPanel = true
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -35,7 +36,7 @@ struct MapScreen: View {
             VStack {
                 Spacer()
 
-                if let track = libraryStore.currentTrack {
+                if let track = libraryStore.currentTrack, showInfoPanel {
                     TrackInfoView(stats: track.stats)
                         .padding(.horizontal, 16)
                         .padding(.bottom, 12)
@@ -55,6 +56,21 @@ struct MapScreen: View {
             VStack {
                 Spacer()
                 HStack {
+                    if libraryStore.currentTrack != nil {
+                        Button(action: { showInfoPanel.toggle() }) {
+                            Image(systemName: showInfoPanel ? "info.circle.fill" : "info.circle")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(14)
+                                .background(
+                                    Circle().fill(Color.black.opacity(0.75))
+                                )
+                                .shadow(radius: 6)
+                        }
+                        .padding(.leading, 16)
+                        .padding(.bottom, buttonBottomPadding)
+                    }
+
                     Spacer()
                     Button(action: toggleFollow) {
                         Image(systemName: followUser ? "location.fill" : "location")
@@ -63,11 +79,11 @@ struct MapScreen: View {
                             .padding(14)
                             .background(
                                 Circle().fill(Color.black.opacity(0.75))
-                            )
+                            ) 
                             .shadow(radius: 6)
                     }
                     .padding(.trailing, 16)
-                    .padding(.bottom, libraryStore.currentTrack == nil ? 16 : 96)
+                    .padding(.bottom, buttonBottomPadding)
                 }
             }
         }
@@ -78,6 +94,13 @@ struct MapScreen: View {
                 locationManager.startUpdating()
             }
         }
+        .onChange(of: libraryStore.currentTrack?.id) { _ in
+            showInfoPanel = true
+        }
+    }
+
+    private var buttonBottomPadding: CGFloat {
+        (libraryStore.currentTrack != nil && showInfoPanel) ? 96 : 16
     }
 
     private func toggleFollow() {
