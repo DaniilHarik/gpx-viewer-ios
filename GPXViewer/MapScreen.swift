@@ -8,7 +8,7 @@ struct MapScreen: View {
     @EnvironmentObject private var bannerCenter: BannerCenter
 
     @State private var followUser = false
-    @State private var showInfoPanel = true
+    @State private var showInfoPanel = false
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -95,7 +95,7 @@ struct MapScreen: View {
             }
         }
         .onChange(of: libraryStore.currentTrack?.id) { _ in
-            showInfoPanel = true
+            showInfoPanel = false
         }
     }
 
