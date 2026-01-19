@@ -16,9 +16,9 @@ Updated: 2026-01-19
 - Library browsing: files are shown in the app's Documents directory.
 - Interaction:
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
-  - Tap a track to load (exclusive select); map auto-zooms to its bounds; info panel is toggled via an info button and resets on selection change.
-  - Base map selector: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
-  - Current location: "locate me" button toggles follow-with-heading; panning the map stops following.
+  - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
+  - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
+  - Current location: "locate me" button toggles follow-user; panning the map stops following.
 
  
 ## Functional Requirements
@@ -28,6 +28,7 @@ Updated: 2026-01-19
   - Documents directory changes (including iCloud/Files provider updates) trigger a rescan via NSFilePresenter on a background queue.
   - Only `.gpx` files are indexed (case-insensitive); invalid GPX surfaces an inline error state.
   - Manual "Rescan Library" action reindexes the file list.
+  - Edit mode supports deleting tracks, which removes the file from Documents.
 - Map tiles
   - Use native map rendering with custom tile overlays.
   - Tile providers: OpenTopoMap and Maa-amet kaart/foto (two separate layers).
@@ -40,6 +41,7 @@ Updated: 2026-01-19
   - Offline mode uses cache-only reads; misses surface as empty tiles without retrying.
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
+  - Optional 1 km distance markers render along the track when enabled.
   - Stats shown: distance (km), duration (moving duration with total-duration fallback), date (start timestamp localized), moving speed (km/h), elevation gain/loss (3 m threshold).
   - Info panel hidden by default; toggled via an info button and resets per selection.
   - Current location tracking uses standard iOS location permissions; foreground-only, with a user-visible indicator when active.
@@ -47,11 +49,12 @@ Updated: 2026-01-19
   - Files sorted by date (filename prefix) descending with fallback to file modification date; list items grouped by year.
   - Search filters by filename or relative path (case-insensitive).
 - Settings
-  - Theme (Light/Dark), Offline Mode, Default Base Map.
+  - Theme (Light/Dark), Offline Mode, Default Base Map, Distance Markers toggle.
   - Rescan Library, Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
   - Diagnostics screen available by long-pressing the Version label.
   - Settings are shown in settings.png (may drift).
+  - Reset App State clears stored settings back to defaults; it does not delete library files or the tile cache.
 - Error handling & observability
   - GPX parse errors are shown inline; tiles that fail to load surface a non-blocking banner.
   - Basic counters for cache hits/misses/errors shown in a hidden Diagnostics screen.
@@ -70,4 +73,3 @@ Updated: 2026-01-19
 ## Security & Reliability (Summary)
 - All file access is restricted to the app sandbox.
 - Validate file extensions on import.
-
