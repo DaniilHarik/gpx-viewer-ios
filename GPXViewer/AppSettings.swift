@@ -100,6 +100,7 @@ final class AppSettings: ObservableObject {
         static let theme = "theme"
         static let offlineMode = "offlineMode"
         static let baseMap = "baseMap"
+        static let distanceMarkersEnabled = "distanceMarkersEnabled"
     }
 
     @Published var theme: ThemeSetting {
@@ -112,6 +113,10 @@ final class AppSettings: ObservableObject {
 
     @Published var baseMap: BaseMapProvider {
         didSet { saveBaseMap() }
+    }
+
+    @Published var distanceMarkersEnabled: Bool {
+        didSet { UserDefaults.standard.set(distanceMarkersEnabled, forKey: Keys.distanceMarkersEnabled) }
     }
 
     var colorScheme: ColorScheme? {
@@ -132,6 +137,12 @@ final class AppSettings: ObservableObject {
         } else {
             self.baseMap = .maaKaart
         }
+
+        if UserDefaults.standard.object(forKey: Keys.distanceMarkersEnabled) != nil {
+            self.distanceMarkersEnabled = UserDefaults.standard.bool(forKey: Keys.distanceMarkersEnabled)
+        } else {
+            self.distanceMarkersEnabled = true
+        }
     }
 
     func reset() {
@@ -140,6 +151,7 @@ final class AppSettings: ObservableObject {
         theme = .light
         offlineMode = false
         baseMap = .maaKaart
+        distanceMarkersEnabled = true
     }
 
     private func saveTheme() {

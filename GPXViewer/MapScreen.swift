@@ -16,6 +16,7 @@ struct MapScreen: View {
                 track: libraryStore.currentTrack,
                 provider: settings.baseMap,
                 offlineMode: settings.offlineMode,
+                showsDistanceMarkers: settings.distanceMarkersEnabled,
                 followUser: followUser,
                 showsUserLocation: followUser,
                 onUserInteraction: {

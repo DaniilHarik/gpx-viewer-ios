@@ -6,6 +6,7 @@ struct MapView: UIViewRepresentable {
     let track: GPXTrack?
     let provider: BaseMapProvider
     let offlineMode: Bool
+    let showsDistanceMarkers: Bool
     let followUser: Bool
     let showsUserLocation: Bool
     let onUserInteraction: () -> Void
@@ -33,6 +34,7 @@ struct MapView: UIViewRepresentable {
 
         updateTileOverlay(on: mapView, coordinator: context.coordinator)
         updatePolyline(on: mapView, coordinator: context.coordinator)
+        updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
 
         return mapView
@@ -43,6 +45,7 @@ struct MapView: UIViewRepresentable {
         mapView.showsUserLocation = showsUserLocation
         updateTileOverlay(on: mapView, coordinator: context.coordinator)
         updatePolyline(on: mapView, coordinator: context.coordinator)
+        updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
     }
 
@@ -96,6 +99,74 @@ struct MapView: UIViewRepresentable {
         }
     }
 
+    private func updateDistanceMarkers(on mapView: MKMapView, coordinator: Coordinator) {
+        guard showsDistanceMarkers, let track = track else {
+            if !coordinator.distanceMarkers.isEmpty {
+                mapView.removeAnnotations(coordinator.distanceMarkers)
+                coordinator.distanceMarkers.removeAll()
+            }
+            coordinator.distanceMarkersTrackID = nil
+            coordinator.distanceMarkersEnabled = showsDistanceMarkers
+            return
+        }
+
+        if coordinator.distanceMarkersTrackID == track.id,
+           coordinator.distanceMarkersEnabled == showsDistanceMarkers {
+            return
+        }
+
+        if !coordinator.distanceMarkers.isEmpty {
+            mapView.removeAnnotations(coordinator.distanceMarkers)
+        }
+
+        let annotations = buildDistanceMarkers(for: track.points)
+        coordinator.distanceMarkers = annotations
+        coordinator.distanceMarkersTrackID = track.id
+        coordinator.distanceMarkersEnabled = showsDistanceMarkers
+        if !annotations.isEmpty {
+            mapView.addAnnotations(annotations)
+        }
+    }
+
+    private func buildDistanceMarkers(for points: [TrackPoint]) -> [DistanceMarkerAnnotation] {
+        guard points.count > 1 else { return [] }
+        var markers: [DistanceMarkerAnnotation] = []
+        var distanceSoFar: CLLocationDistance = 0
+        var nextMarkerDistance: CLLocationDistance = 1000
+        var previous = points[0]
+
+        for point in points.dropFirst() {
+            let prevLoc = CLLocation(latitude: previous.coordinate.latitude, longitude: previous.coordinate.longitude)
+            let currLoc = CLLocation(latitude: point.coordinate.latitude, longitude: point.coordinate.longitude)
+            let segmentDistance = currLoc.distance(from: prevLoc)
+
+            if segmentDistance <= 0 {
+                previous = point
+                continue
+            }
+
+            while distanceSoFar + segmentDistance >= nextMarkerDistance {
+                let remaining = nextMarkerDistance - distanceSoFar
+                let fraction = remaining / segmentDistance
+                let coordinate = interpolateCoordinate(from: previous.coordinate, to: point.coordinate, fraction: fraction)
+                let kmValue = Int(nextMarkerDistance / 1000)
+                markers.append(DistanceMarkerAnnotation(coordinate: coordinate, kmValue: kmValue))
+                nextMarkerDistance += 1000
+            }
+
+            distanceSoFar += segmentDistance
+            previous = point
+        }
+
+        return markers
+    }
+
+    private func interpolateCoordinate(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, fraction: Double) -> CLLocationCoordinate2D {
+        let latitude = start.latitude + (end.latitude - start.latitude) * fraction
+        let longitude = start.longitude + (end.longitude - start.longitude) * fraction
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
     private func updateTracking(on mapView: MKMapView) {
         let mode: MKUserTrackingMode = followUser ? .followWithHeading : .none
         if mapView.userTrackingMode != mode {
@@ -110,6 +181,9 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var polyline: MKPolyline?
     var trackID: UUID?
     var currentProvider: BaseMapProvider?
+    var distanceMarkers: [MKAnnotation] = []
+    var distanceMarkersTrackID: UUID?
+    var distanceMarkersEnabled = false
     private var userInteracting = false
 
     init(parent: MapView) {
@@ -148,5 +222,75 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
         }
 
         return MKOverlayRenderer(overlay: overlay)
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            return nil
+        }
+
+        if let marker = annotation as? DistanceMarkerAnnotation {
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: DistanceMarkerAnnotationView.reuseIdentifier) as? DistanceMarkerAnnotationView
+                ?? DistanceMarkerAnnotationView(annotation: marker, reuseIdentifier: DistanceMarkerAnnotationView.reuseIdentifier)
+            view.annotation = marker
+            return view
+        }
+
+        return nil
+    }
+}
+
+final class DistanceMarkerAnnotation: NSObject, MKAnnotation {
+    let coordinate: CLLocationCoordinate2D
+    let kmValue: Int
+    var title: String? { "\(kmValue)" }
+
+    init(coordinate: CLLocationCoordinate2D, kmValue: Int) {
+        self.coordinate = coordinate
+        self.kmValue = kmValue
+        super.init()
+    }
+}
+
+final class DistanceMarkerAnnotationView: MKAnnotationView {
+    static let reuseIdentifier = "DistanceMarkerAnnotationView"
+    private let label = UILabel()
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        configureView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configureView()
+    }
+
+    override var annotation: MKAnnotation? {
+        didSet {
+            if let marker = annotation as? DistanceMarkerAnnotation {
+                label.text = "\(marker.kmValue)"
+            }
+        }
+    }
+
+    private func configureView() {
+        frame = CGRect(x: 0, y: 0, width: 28, height: 28)
+        backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        layer.cornerRadius = 14
+        layer.borderWidth = 2
+        layer.borderColor = UIColor.systemBlue.cgColor
+        centerOffset = .zero
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 11, weight: .semibold)
+        label.textColor = UIColor.systemBlue
+        label.textAlignment = .center
+        addSubview(label)
+
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
     }
 }

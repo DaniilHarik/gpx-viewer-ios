@@ -24,6 +24,7 @@ struct SettingsView: View {
 
                 Section(header: Text("Map")) {
                     Toggle("Offline Mode", isOn: $settings.offlineMode)
+                    Toggle("1 km Distance Markers", isOn: $settings.distanceMarkersEnabled)
 
                     NavigationLink {
                         BaseMapSelectionView(selected: $settings.baseMap)
