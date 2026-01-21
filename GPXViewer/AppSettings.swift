@@ -86,12 +86,7 @@ enum BaseMapProvider: String, CaseIterable, Identifiable {
     }
 
     var attributionText: String? {
-        switch self {
-        case .openTopo:
-            return "Map data: OpenTopoMap (CC-BY-SA)"
-        default:
-            return nil
-        }
+        nil
     }
 }
 

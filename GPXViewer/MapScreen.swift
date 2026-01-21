@@ -8,6 +8,7 @@ struct MapScreen: View {
     @EnvironmentObject private var bannerCenter: BannerCenter
 
     @State private var followUser = false
+    @State private var showUserLocation = false
     @State private var showInfoPanel = false
     @State private var measurementEnabled = false
     @State private var measurementPoints: [CLLocationCoordinate2D] = []
@@ -20,7 +21,7 @@ struct MapScreen: View {
                 offlineMode: settings.offlineMode,
                 showsDistanceMarkers: settings.distanceMarkersEnabled,
                 followUser: followUser,
-                showsUserLocation: followUser,
+                showsUserLocation: showUserLocation,
                 measurementPoints: measurementPoints,
                 measurementEnabled: measurementEnabled,
                 onUserInteraction: {
@@ -120,6 +121,7 @@ struct MapScreen: View {
         .onChange(of: locationManager.isAuthorized) { newValue in
             if !newValue {
                 followUser = false
+                showUserLocation = false
             } else if followUser {
                 locationManager.startUpdating()
             }
@@ -174,6 +176,7 @@ struct MapScreen: View {
         locationManager.requestWhenInUse()
         locationManager.startUpdating()
         followUser = true
+        showUserLocation = true
     }
 
     private func toggleMeasurement() {

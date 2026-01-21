@@ -18,7 +18,7 @@ Updated: 2026-01-19
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
   - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
   - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
-  - Current location: "locate me" button toggles follow-user; panning the map stops following.
+  - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; measurements are separate from tracks.
 
  
@@ -33,7 +33,7 @@ Updated: 2026-01-19
 - Map tiles
   - Use native map rendering with custom tile overlays.
   - Tile providers: OpenTopoMap and Maa-amet kaart/foto (two separate layers).
-  - OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ; display attribution text in the map UI.
+  - OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ.
   - Maa-amet kaart: `https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis (invert Y when building tile URLs)
   - Maa-amet foto: `https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis; cache as JPEG to preserve content type.
   - Tile caching uses a custom on-disk cache in the app's Caches directory; cache is per-provider and can be cleared in Settings.
