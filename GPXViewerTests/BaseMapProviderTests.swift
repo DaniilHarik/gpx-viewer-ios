@@ -15,4 +15,15 @@ final class BaseMapProviderTests: XCTestCase {
     func testMaaFotoUsesJpegExtension() {
         XCTAssertEqual(BaseMapProvider.maaFoto.tileFileExtension, "jpg")
     }
+
+    func testMaaFotoURLInvertsTMSYAxis() {
+        let url = BaseMapProvider.maaFoto.tileURL(z: 2, x: 1, y: 0)
+        XCTAssertEqual(url.absoluteString, "https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/2/1/3.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE")
+    }
+
+    func testMaxZoomDefaults() {
+        XCTAssertEqual(BaseMapProvider.openTopo.maxZoom, 15)
+        XCTAssertEqual(BaseMapProvider.maaKaart.maxZoom, 19)
+        XCTAssertEqual(BaseMapProvider.maaFoto.maxZoom, 19)
+    }
 }

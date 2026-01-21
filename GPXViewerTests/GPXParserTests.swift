@@ -51,6 +51,29 @@ final class GPXParserTests: XCTestCase {
         }
     }
 
+    func testParsesFractionalSecondsTimestamp() throws {
+        let gpx = """
+        <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <gpx version=\"1.1\" creator=\"UnitTest\">
+          <trk>
+            <trkseg>
+              <trkpt lat=\"59.0000\" lon=\"24.0000\">
+                <time>2020-01-01T10:00:00.123Z</time>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>
+        """
+        let url = try writeTempFile(contents: gpx)
+
+        let track = try GPXParser().parse(url: url)
+
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let expected = formatter.date(from: "2020-01-01T10:00:00.123Z")
+        XCTAssertEqual(track.points.first?.timestamp, expected)
+    }
+
     private func writeTempFile(contents: String) throws -> URL {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)

@@ -42,4 +42,18 @@ final class TrackStatsTests: XCTestCase {
         XCTAssertEqual(stats.movingDuration, 60, accuracy: 0.1)
         XCTAssertEqual(stats.movingSpeedKmh, 0, accuracy: 0.1)
     }
+
+    func testElevationGainLossIgnoresSmallChanges() {
+        let start = Date(timeIntervalSince1970: 0)
+        let points = [
+            TrackPoint(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0), elevation: 10, timestamp: start),
+            TrackPoint(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0.001), elevation: 12, timestamp: start.addingTimeInterval(10)),
+            TrackPoint(coordinate: CLLocationCoordinate2D(latitude: 0, longitude: 0.002), elevation: 15, timestamp: start.addingTimeInterval(20))
+        ]
+
+        let stats = TrackStats.compute(points: points)
+
+        XCTAssertEqual(stats.elevationGain, 0, accuracy: 0.01)
+        XCTAssertEqual(stats.elevationLoss, 0, accuracy: 0.01)
+    }
 }

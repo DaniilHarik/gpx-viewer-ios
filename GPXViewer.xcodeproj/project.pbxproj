@@ -30,6 +30,7 @@
 		E87D225255FB4DF9BEA87225 /* GPXParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA70279BD3964681AF5954C1 /* GPXParser.swift */; };
 		FA0CD51178C0483293F635D8 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8255C7432A94495C80E438C2 /* LocationManager.swift */; };
 		1AB58B42054D45B0AB2627ED /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B54035CE1A43998E4099AF /* XCTest.framework */; };
+		1D9F6FCEB37F4C4DB0F0C0A6 /* AppSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6A1A7E5D1A4E25A11E5B24 /* AppSettingsTests.swift */; };
 		2D5B67D46974489A99A5A22B /* TrackStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */; };
 		5ED6572A355F47C6BF0EE8E3 /* BaseMapProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59E10215344A95A2C4C2A7 /* BaseMapProviderTests.swift */; };
 		7755FA435E6B455EA4874702 /* GPXParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5722C9EB0C4D9D8C217451 /* GPXParserTests.swift */; };
@@ -67,6 +68,7 @@
 		696055ED6CFA44EAB3A6DD8A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7A1881DAAC534C85953E4C36 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		8255C7432A94495C80E438C2 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		8E6A1A7E5D1A4E25A11E5B24 /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
 		89BBDC8DFBEB4CA3B2BD327B /* AttributionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributionView.swift; sourceTree = "<group>"; };
 		A50269226B2C429E84D46A93 /* TileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileCache.swift; sourceTree = "<group>"; };
 		B2B7BBAD43AD4C2699B52461 /* TileOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileOverlay.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 		1B4923198E5745C69833C8A0 /* GPXViewerTests */ = {
 			isa = PBXGroup;
 			children = (
+				8E6A1A7E5D1A4E25A11E5B24 /* AppSettingsTests.swift */,
 				CB59E10215344A95A2C4C2A7 /* BaseMapProviderTests.swift */,
 				AC5722C9EB0C4D9D8C217451 /* GPXParserTests.swift */,
 				97F13E6AA6584133BD066028 /* TileCacheTests.swift */,
@@ -337,6 +340,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D9F6FCEB37F4C4DB0F0C0A6 /* AppSettingsTests.swift in Sources */,
 				5ED6572A355F47C6BF0EE8E3 /* BaseMapProviderTests.swift in Sources */,
 				7755FA435E6B455EA4874702 /* GPXParserTests.swift in Sources */,
 				77AD44773E0D407DBDAAB5F4 /* TileCacheTests.swift in Sources */,
