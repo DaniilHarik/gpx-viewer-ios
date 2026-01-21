@@ -18,7 +18,7 @@ Updated: 2026-01-19
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
   - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
   - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
-  - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible.
+  - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
 
  

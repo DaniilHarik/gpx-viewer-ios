@@ -22,6 +22,7 @@ struct MapScreen: View {
                 showsDistanceMarkers: settings.distanceMarkersEnabled,
                 followUser: followUser,
                 showsUserLocation: showUserLocation,
+                userHeading: locationManager.heading,
                 measurementPoints: measurementPoints,
                 measurementEnabled: measurementEnabled,
                 onUserInteraction: {

@@ -17,6 +17,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.headingFilter = kCLHeadingFilterNone
+        manager.headingOrientation = .portrait
     }
 
     func requestWhenInUse() {
@@ -26,7 +28,9 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     func startUpdating() {
         if isAuthorized {
             manager.startUpdatingLocation()
-            manager.startUpdatingHeading()
+            if CLLocationManager.headingAvailable() {
+                manager.startUpdatingHeading()
+            }
         }
     }
 

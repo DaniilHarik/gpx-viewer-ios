@@ -9,6 +9,7 @@ struct MapView: UIViewRepresentable {
     let showsDistanceMarkers: Bool
     let followUser: Bool
     let showsUserLocation: Bool
+    let userHeading: CLHeading?
     let measurementPoints: [CLLocationCoordinate2D]
     let measurementEnabled: Bool
     let onUserInteraction: () -> Void
@@ -57,6 +58,8 @@ struct MapView: UIViewRepresentable {
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
+        context.coordinator.userHeading = userHeading
+        context.coordinator.updateUserHeading(on: mapView)
     }
 
     private func updateTileOverlay(on mapView: MKMapView, coordinator: Coordinator) {
@@ -257,6 +260,7 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var measurementPointCount = 0
     var measurementLastCoordinate: CLLocationCoordinate2D?
     var measurementEnabled = false
+    var userHeading: CLHeading?
     private var userInteracting = false
 
     init(parent: MapView) {
@@ -318,7 +322,11 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
-            return nil
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: UserLocationAnnotationView.reuseIdentifier) as? UserLocationAnnotationView
+                ?? UserLocationAnnotationView(annotation: annotation, reuseIdentifier: UserLocationAnnotationView.reuseIdentifier)
+            view.annotation = annotation
+            view.setHeading(userHeading)
+            return view
         }
 
         if let marker = annotation as? DistanceMarkerAnnotation {
@@ -336,6 +344,11 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
         }
 
         return nil
+    }
+
+    func updateUserHeading(on mapView: MKMapView) {
+        guard let view = mapView.view(for: mapView.userLocation) as? UserLocationAnnotationView else { return }
+        view.setHeading(userHeading)
     }
 }
 
@@ -357,6 +370,88 @@ final class MeasurementPointAnnotation: NSObject, MKAnnotation {
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
         super.init()
+    }
+}
+
+final class UserLocationAnnotationView: MKAnnotationView {
+    static let reuseIdentifier = "UserLocationAnnotationView"
+    private let dotView = UIView()
+    private let arrowLayer = CAShapeLayer()
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        configureView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configureView()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let dotSize: CGFloat = 18
+        dotView.frame = CGRect(
+            x: bounds.midX - dotSize / 2,
+            y: bounds.midY - dotSize / 2,
+            width: dotSize,
+            height: dotSize
+        )
+        updateArrowPath()
+    }
+
+    func setHeading(_ heading: CLHeading?) {
+        guard let heading else {
+            arrowLayer.isHidden = true
+            return
+        }
+
+        let headingValue: CLLocationDirection
+        if heading.trueHeading >= 0 {
+            headingValue = heading.trueHeading
+        } else {
+            headingValue = heading.magneticHeading
+        }
+
+        arrowLayer.isHidden = false
+        let angle = CGFloat(headingValue * .pi / 180)
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(0.15)
+        arrowLayer.setAffineTransform(CGAffineTransform(rotationAngle: angle))
+        CATransaction.commit()
+    }
+
+    private func configureView() {
+        frame = CGRect(x: 0, y: 0, width: 42, height: 42)
+        backgroundColor = .clear
+        centerOffset = .zero
+
+        dotView.backgroundColor = UIColor.systemBlue
+        dotView.layer.cornerRadius = 9
+        dotView.layer.borderWidth = 2
+        dotView.layer.borderColor = UIColor.white.cgColor
+        addSubview(dotView)
+
+        arrowLayer.fillColor = UIColor.systemBlue.cgColor
+        arrowLayer.bounds = bounds
+        arrowLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        layer.addSublayer(arrowLayer)
+        updateArrowPath()
+        arrowLayer.isHidden = true
+    }
+
+    private func updateArrowPath() {
+        let tip = CGPoint(x: bounds.midX, y: 2)
+        let left = CGPoint(x: bounds.midX - 8, y: 15)
+        let right = CGPoint(x: bounds.midX + 8, y: 15)
+        let path = UIBezierPath()
+        path.move(to: tip)
+        path.addLine(to: left)
+        path.addLine(to: right)
+        path.close()
+        arrowLayer.path = path.cgPath
+        arrowLayer.bounds = bounds
+        arrowLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
     }
 }
 
