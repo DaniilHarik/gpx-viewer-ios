@@ -28,7 +28,6 @@ struct MapScreen: View {
                 onUserInteraction: {
                     if followUser {
                         followUser = false
-                        locationManager.stopUpdating()
                     }
                 },
                 onMeasureTap: { coordinate in
@@ -128,7 +127,7 @@ struct MapScreen: View {
             if !newValue {
                 followUser = false
                 showUserLocation = false
-            } else if followUser {
+            } else if showUserLocation {
                 locationManager.startUpdating()
             }
         }
@@ -175,7 +174,6 @@ struct MapScreen: View {
     private func toggleFollow() {
         if followUser {
             followUser = false
-            locationManager.stopUpdating()
             return
         }
 
