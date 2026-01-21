@@ -51,7 +51,7 @@ struct LibraryView: View {
                     libraryStore.importFiles(urls)
                 }
             }
-            .confirmationDialog("Delete Track", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+            .alert("Delete Track", isPresented: $showingDeleteConfirm) {
                 Button("Delete", role: .destructive) {
                     libraryStore.deleteFiles(pendingDeletion)
                     pendingDeletion = []
@@ -60,7 +60,11 @@ struct LibraryView: View {
                     pendingDeletion = []
                 }
             } message: {
-                Text(pendingDeletion.count == 1 ? "This will permanently delete the track from your library." : "This will permanently delete the selected tracks from your library.")
+                if pendingDeletion.count == 1, let name = pendingDeletion.first?.displayName {
+                    Text("This will permanently delete “\(name)” from your library.")
+                } else {
+                    Text("This will permanently delete the selected tracks from your library.")
+                }
             }
         }
     }
