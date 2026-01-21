@@ -47,6 +47,11 @@ struct MapScreen: View {
                     MeasurementSummaryView(
                         summaryText: measurementSummaryText,
                         pointCount: measurementPoints.count,
+                        onUndo: {
+                            if measurementPoints.count > 1 {
+                                measurementPoints.removeLast()
+                            }
+                        },
                         onClear: { measurementPoints.removeAll() }
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -187,6 +192,7 @@ struct MapScreen: View {
 private struct MeasurementSummaryView: View {
     let summaryText: String
     let pointCount: Int
+    let onUndo: () -> Void
     let onClear: () -> Void
 
     var body: some View {
@@ -203,12 +209,23 @@ private struct MeasurementSummaryView: View {
             Spacer(minLength: 0)
 
             if pointCount > 0 {
-                Button(action: onClear) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.white)
+                HStack(spacing: 8) {
+                    if pointCount > 1 {
+                        Button(action: onUndo) {
+                            Image(systemName: "arrow.uturn.backward.circle.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
+                        .accessibilityLabel("Undo last segment")
+                    }
+
+                    Button(action: onClear) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .accessibilityLabel("Clear measurement")
                 }
-                .accessibilityLabel("Clear measurement")
             }
         }
         .padding(.horizontal, 14)
