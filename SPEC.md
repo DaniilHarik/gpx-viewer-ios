@@ -47,7 +47,7 @@ Updated: 2026-01-19
   - Clear action removes measurement points without affecting tracks or track markers.
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
-  - Optional 1 km distance markers render along the track when enabled.
+  - Optional distance markers render along the track when enabled; interval selectable (1/3/5/10 km).
   - Stats shown: distance (km), duration (moving duration with total-duration fallback), date (start timestamp localized), moving speed (km/h), elevation gain/loss (3 m threshold).
   - Info panel hidden by default; toggled via an info button and resets per selection.
   - Current location tracking uses standard iOS location permissions; foreground-only, with a user-visible indicator when active.
@@ -55,7 +55,7 @@ Updated: 2026-01-19
   - Files sorted by date (filename prefix) descending with fallback to file modification date; list items grouped by year.
   - Search filters by filename or relative path (case-insensitive).
 - Settings
-  - Theme (Light/Dark), Offline Mode, Default Base Map, Distance Markers toggle.
+  - Theme (Light/Dark), Offline Mode, Default Base Map, Distance Markers toggle with 1/3/5/10 km interval selector.
   - Rescan Library, Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
   - Diagnostics screen available by long-pressing the Version label.

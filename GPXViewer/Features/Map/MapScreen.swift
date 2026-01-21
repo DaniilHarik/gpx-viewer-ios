@@ -20,6 +20,7 @@ struct MapScreen: View {
                 provider: settings.baseMap,
                 offlineMode: settings.offlineMode,
                 showsDistanceMarkers: settings.distanceMarkersEnabled,
+                distanceMarkerIntervalKm: settings.distanceMarkerInterval.rawValue,
                 followUser: followUser,
                 showsUserLocation: showUserLocation,
                 userHeading: locationManager.heading,

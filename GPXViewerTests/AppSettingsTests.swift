@@ -6,7 +6,8 @@ final class AppSettingsTests: XCTestCase {
         "theme",
         "offlineMode",
         "baseMap",
-        "distanceMarkersEnabled"
+        "distanceMarkersEnabled",
+        "distanceMarkerInterval"
     ]
 
     override func setUp() {
@@ -26,6 +27,7 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.offlineMode, false)
         XCTAssertEqual(settings.baseMap, .maaKaart)
         XCTAssertEqual(settings.distanceMarkersEnabled, true)
+        XCTAssertEqual(settings.distanceMarkerInterval, .one)
     }
 
     func testPersistsChangesAcrossInstances() {
@@ -34,6 +36,7 @@ final class AppSettingsTests: XCTestCase {
         settings.offlineMode = true
         settings.baseMap = .openTopo
         settings.distanceMarkersEnabled = false
+        settings.distanceMarkerInterval = .ten
 
         let reloaded = AppSettings()
 
@@ -41,6 +44,7 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(reloaded.offlineMode, true)
         XCTAssertEqual(reloaded.baseMap, .openTopo)
         XCTAssertEqual(reloaded.distanceMarkersEnabled, false)
+        XCTAssertEqual(reloaded.distanceMarkerInterval, .ten)
     }
 
     func testResetRestoresDefaults() {
@@ -49,6 +53,7 @@ final class AppSettingsTests: XCTestCase {
         settings.offlineMode = true
         settings.baseMap = .openTopo
         settings.distanceMarkersEnabled = false
+        settings.distanceMarkerInterval = .five
 
         settings.reset()
 
@@ -56,6 +61,7 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.offlineMode, false)
         XCTAssertEqual(settings.baseMap, .maaKaart)
         XCTAssertEqual(settings.distanceMarkersEnabled, true)
+        XCTAssertEqual(settings.distanceMarkerInterval, .one)
     }
 
     private func clearDefaults() {

@@ -24,7 +24,14 @@ struct SettingsView: View {
 
                 Section(header: Text("Map")) {
                     Toggle("Offline Mode", isOn: $settings.offlineMode)
-                    Toggle("1 km Distance Markers", isOn: $settings.distanceMarkersEnabled)
+                    Toggle("Distance Markers", isOn: $settings.distanceMarkersEnabled)
+                    Picker("Marker Interval", selection: $settings.distanceMarkerInterval) {
+                        ForEach(DistanceMarkerInterval.allCases) { interval in
+                            Text(interval.title).tag(interval)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .disabled(!settings.distanceMarkersEnabled)
 
                     NavigationLink {
                         BaseMapSelectionView(selected: $settings.baseMap)

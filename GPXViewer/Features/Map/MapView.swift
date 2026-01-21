@@ -7,6 +7,7 @@ struct MapView: UIViewRepresentable {
     let provider: BaseMapProvider
     let offlineMode: Bool
     let showsDistanceMarkers: Bool
+    let distanceMarkerIntervalKm: Int
     let followUser: Bool
     let showsUserLocation: Bool
     let userHeading: CLHeading?
@@ -130,7 +131,8 @@ struct MapView: UIViewRepresentable {
         }
 
         if coordinator.distanceMarkersTrackID == track.id,
-           coordinator.distanceMarkersEnabled == showsDistanceMarkers {
+           coordinator.distanceMarkersEnabled == showsDistanceMarkers,
+           coordinator.distanceMarkersIntervalKm == distanceMarkerIntervalKm {
             return
         }
 
@@ -138,20 +140,23 @@ struct MapView: UIViewRepresentable {
             mapView.removeAnnotations(coordinator.distanceMarkers)
         }
 
-        let annotations = buildDistanceMarkers(for: track.points)
+        let annotations = buildDistanceMarkers(for: track.points, intervalKm: distanceMarkerIntervalKm)
         coordinator.distanceMarkers = annotations
         coordinator.distanceMarkersTrackID = track.id
         coordinator.distanceMarkersEnabled = showsDistanceMarkers
+        coordinator.distanceMarkersIntervalKm = distanceMarkerIntervalKm
         if !annotations.isEmpty {
             mapView.addAnnotations(annotations)
         }
     }
 
-    private func buildDistanceMarkers(for points: [TrackPoint]) -> [DistanceMarkerAnnotation] {
+    private func buildDistanceMarkers(for points: [TrackPoint], intervalKm: Int) -> [DistanceMarkerAnnotation] {
         guard points.count > 1 else { return [] }
+        let sanitizedInterval = max(1, intervalKm)
+        let intervalDistance = CLLocationDistance(sanitizedInterval) * 1000
         var markers: [DistanceMarkerAnnotation] = []
         var distanceSoFar: CLLocationDistance = 0
-        var nextMarkerDistance: CLLocationDistance = 1000
+        var nextMarkerDistance: CLLocationDistance = intervalDistance
         var previous = points[0]
 
         for point in points.dropFirst() {
@@ -170,7 +175,7 @@ struct MapView: UIViewRepresentable {
                 let coordinate = interpolateCoordinate(from: previous.coordinate, to: point.coordinate, fraction: fraction)
                 let kmValue = Int(nextMarkerDistance / 1000)
                 markers.append(DistanceMarkerAnnotation(coordinate: coordinate, kmValue: kmValue))
-                nextMarkerDistance += 1000
+                nextMarkerDistance += intervalDistance
             }
 
             distanceSoFar += segmentDistance
@@ -257,6 +262,7 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var distanceMarkers: [MKAnnotation] = []
     var distanceMarkersTrackID: UUID?
     var distanceMarkersEnabled = false
+    var distanceMarkersIntervalKm = 1
     var measurementPolyline: MKPolyline?
     var measurementPointAnnotations: [MKAnnotation] = []
     var measurementPointCount = 0

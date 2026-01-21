@@ -90,12 +90,26 @@ enum BaseMapProvider: String, CaseIterable, Identifiable {
     }
 }
 
+enum DistanceMarkerInterval: Int, CaseIterable, Identifiable {
+    case one = 1
+    case three = 3
+    case five = 5
+    case ten = 10
+
+    var id: Int { rawValue }
+
+    var title: String {
+        "\(rawValue) km"
+    }
+}
+
 final class AppSettings: ObservableObject {
     private enum Keys {
         static let theme = "theme"
         static let offlineMode = "offlineMode"
         static let baseMap = "baseMap"
         static let distanceMarkersEnabled = "distanceMarkersEnabled"
+        static let distanceMarkerInterval = "distanceMarkerInterval"
     }
 
     @Published var theme: ThemeSetting {
@@ -112,6 +126,10 @@ final class AppSettings: ObservableObject {
 
     @Published var distanceMarkersEnabled: Bool {
         didSet { UserDefaults.standard.set(distanceMarkersEnabled, forKey: Keys.distanceMarkersEnabled) }
+    }
+
+    @Published var distanceMarkerInterval: DistanceMarkerInterval {
+        didSet { saveDistanceMarkerInterval() }
     }
 
     var colorScheme: ColorScheme? {
@@ -138,6 +156,13 @@ final class AppSettings: ObservableObject {
         } else {
             self.distanceMarkersEnabled = true
         }
+
+        if let raw = UserDefaults.standard.object(forKey: Keys.distanceMarkerInterval) as? Int,
+           let interval = DistanceMarkerInterval(rawValue: raw) {
+            self.distanceMarkerInterval = interval
+        } else {
+            self.distanceMarkerInterval = .one
+        }
     }
 
     func reset() {
@@ -147,6 +172,7 @@ final class AppSettings: ObservableObject {
         offlineMode = false
         baseMap = .maaKaart
         distanceMarkersEnabled = true
+        distanceMarkerInterval = .one
     }
 
     private func saveTheme() {
@@ -155,5 +181,9 @@ final class AppSettings: ObservableObject {
 
     private func saveBaseMap() {
         UserDefaults.standard.set(baseMap.rawValue, forKey: Keys.baseMap)
+    }
+
+    private func saveDistanceMarkerInterval() {
+        UserDefaults.standard.set(distanceMarkerInterval.rawValue, forKey: Keys.distanceMarkerInterval)
     }
 }
