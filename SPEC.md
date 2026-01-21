@@ -20,6 +20,7 @@ Updated: 2026-01-19
   - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
+  - Map view stays in 2D; perspective/pitch is disabled.
 
  
 ## Functional Requirements

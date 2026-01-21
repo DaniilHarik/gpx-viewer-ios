@@ -26,6 +26,7 @@ struct MapView: UIViewRepresentable {
         mapView.showsScale = true
         mapView.showsCompass = true
         mapView.isRotateEnabled = false
+        mapView.isPitchEnabled = false
         mapView.showsUserLocation = showsUserLocation
 
         let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.userDidInteract(_:)))
@@ -53,6 +54,7 @@ struct MapView: UIViewRepresentable {
     func updateUIView(_ mapView: MKMapView, context: Context) {
         context.coordinator.parent = self
         mapView.showsUserLocation = showsUserLocation
+        mapView.isPitchEnabled = false
         updateTileOverlay(on: mapView, coordinator: context.coordinator)
         updatePolyline(on: mapView, coordinator: context.coordinator)
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
