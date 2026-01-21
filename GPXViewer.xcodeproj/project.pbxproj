@@ -131,6 +131,43 @@
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
+		6789012345678A1B2C3D4E5F6 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				696055ED6CFA44EAB3A6DD8A /* SettingsView.swift */,
+				F49BD94B200D4E90A421F832 /* AppSettings.swift */,
+				BD6F25FDCDEC418899A28AD9 /* DiagnosticsView.swift */,
+				89BBDC8DFBEB4CA3B2BD327B /* AttributionView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		789012345678A1B2C3D4E5F67 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				89012345678A1B2C3D4E5F678 /* Components */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		89012345678A1B2C3D4E5F678 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				01F78EA7C3A74D3D999937C7 /* BannerView.swift */,
+				C404947FA92C459198C72D2B /* DocumentPicker.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6789012345678 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				056515BA5436415AB640A71B /* GPXViewerApp.swift */,
+				CBABC1BBE25441568350A2CF /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		3E0D42D4993E49B0B43E12C1 = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +186,55 @@
 				3E0D42D4993E49B0B43E12C1,
 				3718F8E92F1DF5A300920EC7 /* Recovered References */,
 			);
+			sourceTree = "<group>";
+		};
+		B2C3D4E5F6789012345678A1 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				E2291456D3F8440FB56EB67E /* GPXModels.swift */,
+				DA70279BD3964681AF5954C1 /* GPXParser.swift */,
+				0C37C977602B4325956E6291 /* TrackStats.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		C3D4E5F6789012345678A1B2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8255C7432A94495C80E438C2 /* LocationManager.swift */,
+				A50269226B2C429E84D46A93 /* TileCache.swift */,
+				B2B7BBAD43AD4C2699B52461 /* TileOverlay.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D4E5F6789012345678A1B2C3 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				E5F6789012345678A1B2C3D4 /* Map */,
+				F6789012345678A1B2C3D4E5 /* Library */,
+				6789012345678A1B2C3D4E5F6 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		E5F6789012345678A1B2C3D4 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				2E539CE8FF414F9FBCDE1498 /* MapScreen.swift */,
+				F417A716BCA2413CA6734381 /* MapView.swift */,
+				0B34FA2CF757467E82B3A8D7 /* TrackInfoView.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		F6789012345678A1B2C3D4E5 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				4FA87F13B5AF46EE913FE833 /* LibraryStore.swift */,
+				D22A52F12066457DBBE856E5 /* LibraryView.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 		1B4923198E5745C69833C8A0 /* GPXViewerTests */ = {
@@ -174,25 +260,11 @@
 		EB241F61475944A88EFA5A9F /* GPXViewer */ = {
 			isa = PBXGroup;
 			children = (
-				F49BD94B200D4E90A421F832 /* AppSettings.swift */,
-				89BBDC8DFBEB4CA3B2BD327B /* AttributionView.swift */,
-				01F78EA7C3A74D3D999937C7 /* BannerView.swift */,
-				CBABC1BBE25441568350A2CF /* ContentView.swift */,
-				BD6F25FDCDEC418899A28AD9 /* DiagnosticsView.swift */,
-				C404947FA92C459198C72D2B /* DocumentPicker.swift */,
-				E2291456D3F8440FB56EB67E /* GPXModels.swift */,
-				DA70279BD3964681AF5954C1 /* GPXParser.swift */,
-				056515BA5436415AB640A71B /* GPXViewerApp.swift */,
-				4FA87F13B5AF46EE913FE833 /* LibraryStore.swift */,
-				D22A52F12066457DBBE856E5 /* LibraryView.swift */,
-				8255C7432A94495C80E438C2 /* LocationManager.swift */,
-				2E539CE8FF414F9FBCDE1498 /* MapScreen.swift */,
-				F417A716BCA2413CA6734381 /* MapView.swift */,
-				696055ED6CFA44EAB3A6DD8A /* SettingsView.swift */,
-				A50269226B2C429E84D46A93 /* TileCache.swift */,
-				B2B7BBAD43AD4C2699B52461 /* TileOverlay.swift */,
-				0B34FA2CF757467E82B3A8D7 /* TrackInfoView.swift */,
-				0C37C977602B4325956E6291 /* TrackStats.swift */,
+				A1B2C3D4E5F6789012345678 /* App */,
+				B2C3D4E5F6789012345678A1 /* Core */,
+				C3D4E5F6789012345678A1B2 /* Services */,
+				D4E5F6789012345678A1B2C3 /* Features */,
+				789012345678A1B2C3D4E5F67 /* UI */,
 				B44D6F7EF631434CA9B97AE7 /* Assets.xcassets */,
 				03C75FFBA8F7435BA8E77230 /* Info.plist */,
 			);
