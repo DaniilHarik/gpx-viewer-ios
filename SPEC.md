@@ -17,7 +17,7 @@ Updated: 2026-01-19
 - Interaction:
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
   - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
-  - Base map selector in Settings: OpenTopoMap and Maa-amet kaart/foto; defaults to Maa-amet kaart. Selection persists per-device.
+  - Base map selector in Settings uses the configured tile providers list; defaults to Maa-amet kaart. Selection persists per-device.
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
   - Map view stays in 2D; perspective/pitch is disabled.
@@ -33,7 +33,7 @@ Updated: 2026-01-19
   - Edit mode supports deleting tracks, which removes the file from Documents.
 - Map tiles
   - Use native map rendering with custom tile overlays.
-  - Tile providers: OpenTopoMap and Maa-amet kaart/foto (two separate layers).
+  - Tile providers are configurable in Settings; defaults include OpenTopoMap and Maa-amet kaart/foto (two separate layers).
   - OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ.
   - Maa-amet kaart: `https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis (invert Y when building tile URLs)
   - Maa-amet foto: `https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis; cache as JPEG to preserve content type.
@@ -55,7 +55,8 @@ Updated: 2026-01-19
   - Files sorted by date (filename prefix) descending with fallback to file modification date; list items grouped by year.
   - Search filters by filename or relative path (case-insensitive).
 - Settings
-  - Theme (Light/Dark), Offline Mode, Default Base Map, Distance Markers toggle with 1/3/5/10 km interval selector.
+  - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector.
+  - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
   - Rescan Library, Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
   - Diagnostics screen available by long-pressing the Version label.

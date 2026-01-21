@@ -94,7 +94,7 @@ final class TileCache {
 
     private func cacheURL(provider: BaseMapProvider, path: MKTileOverlayPath) -> URL {
         let base = baseCacheDirectory()
-        let providerDir = base.appendingPathComponent(provider.rawValue, isDirectory: true)
+        let providerDir = base.appendingPathComponent(provider.cacheKey, isDirectory: true)
         let zDir = providerDir.appendingPathComponent(String(path.z), isDirectory: true)
         let xDir = zDir.appendingPathComponent(String(path.x), isDirectory: true)
         let filename = "\(path.y).\(provider.tileFileExtension)"

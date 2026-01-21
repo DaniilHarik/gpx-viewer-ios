@@ -6,7 +6,7 @@ Privacy-first iOS app for browsing GPX tracks on a map with offline-friendly til
 - Local GPX library stored in the app Documents directory.
 - Import via Files picker with multi-select and duplicate name handling.
 - Map view with track overlay, optional 1 km distance markers, track stats, and a measurement tool.
-- Base map options: OpenTopoMap and Maa-amet kaart/foto.
+- Base map options: configurable tile providers (defaults include OpenTopoMap and Maa-amet kaart/foto).
 - Offline mode uses cache-only map tiles.
 - Tile cache with size readout, clear action, and background LRU trimming.
 
@@ -24,7 +24,7 @@ Privacy-first iOS app for browsing GPX tracks on a map with offline-friendly til
 - View a track: tap a file to load it and jump to the Map tab.
 - Track stats: tap the info button on the map.
 - Measure distance: tap the ruler button, then tap the map to add points and clear.
-- Settings: choose theme, offline mode, base map, and distance markers.
+- Settings: choose theme, offline mode, base map, tile providers, and distance markers.
 
 ## Architecture
 - SwiftUI app with a `MapView` bridge to `MKMapView`.

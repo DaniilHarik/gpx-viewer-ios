@@ -34,12 +34,23 @@ struct SettingsView: View {
                     .disabled(!settings.distanceMarkersEnabled)
 
                     NavigationLink {
-                        BaseMapSelectionView(selected: $settings.baseMap)
+                        BaseMapSelectionView(selectedId: $settings.baseMapId, providers: settings.tileProviders)
                     } label: {
                         HStack {
                             Text("Default Base Map")
                             Spacer()
                             Text(settings.baseMap.title)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    NavigationLink {
+                        TileProvidersView()
+                    } label: {
+                        HStack {
+                            Text("Tile Providers")
+                            Spacer()
+                            Text("\(settings.tileProviders.count)")
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -114,16 +125,17 @@ struct SettingsView: View {
 }
 
 private struct BaseMapSelectionView: View {
-    @Binding var selected: BaseMapProvider
+    @Binding var selectedId: String
+    let providers: [BaseMapProvider]
 
     var body: some View {
         List {
-            ForEach(BaseMapProvider.allCases) { provider in
-                Button(action: { selected = provider }) {
+            ForEach(providers) { provider in
+                Button(action: { selectedId = provider.id }) {
                     HStack {
                         Text(provider.title)
                         Spacer()
-                        if provider == selected {
+                        if provider.id == selectedId {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(.blue)
                         }
@@ -133,5 +145,142 @@ private struct BaseMapSelectionView: View {
             }
         }
         .navigationTitle("Base Map")
+    }
+}
+
+private struct TileProvidersView: View {
+    @EnvironmentObject private var settings: AppSettings
+    @State private var showAdd = false
+    @State private var newProvider = BaseMapProvider.newCustom()
+
+    var body: some View {
+        List {
+            Section {
+                ForEach($settings.tileProviders) { $provider in
+                    NavigationLink {
+                        TileProviderEditorView(
+                            provider: $provider,
+                            title: "Edit Provider",
+                            showsToolbar: false,
+                            onSave: nil,
+                            onCancel: nil
+                        )
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(provider.title)
+                            Text(provider.urlTemplate)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                }
+                .onDelete(perform: deleteProviders)
+            } footer: {
+                Text("Add, edit, or remove tile providers used for base maps.")
+            }
+        }
+        .navigationTitle("Tile Providers")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: beginAdd) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showAdd) {
+            NavigationStack {
+                TileProviderEditorView(
+                    provider: $newProvider,
+                    title: "New Provider",
+                    showsToolbar: true,
+                    onSave: saveNewProvider,
+                    onCancel: cancelNewProvider
+                )
+            }
+        }
+    }
+
+    private func beginAdd() {
+        newProvider = BaseMapProvider.newCustom()
+        showAdd = true
+    }
+
+    private func saveNewProvider() {
+        settings.tileProviders.append(newProvider)
+        showAdd = false
+        newProvider = BaseMapProvider.newCustom()
+    }
+
+    private func cancelNewProvider() {
+        showAdd = false
+        newProvider = BaseMapProvider.newCustom()
+    }
+
+    private func deleteProviders(at offsets: IndexSet) {
+        guard settings.tileProviders.count > 1 else { return }
+        settings.tileProviders.remove(atOffsets: offsets)
+        if settings.tileProviders.isEmpty {
+            settings.tileProviders = BaseMapProvider.builtInProviders()
+        }
+    }
+}
+
+private struct TileProviderEditorView: View {
+    @Binding var provider: BaseMapProvider
+    let title: String
+    let showsToolbar: Bool
+    let onSave: (() -> Void)?
+    let onCancel: (() -> Void)?
+
+    var body: some View {
+        Form {
+            Section {
+                TextField("Name", text: $provider.name)
+                TextField("Template URL", text: $provider.urlTemplate)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+            } header: {
+                Text("Details")
+            } footer: {
+                Text("Use {z}, {x}, and {y} placeholders for tile coordinates.")
+            }
+
+            Section {
+                Stepper(value: $provider.maxZoom, in: 0...22) {
+                    HStack {
+                        Text("Max Zoom")
+                        Spacer()
+                        Text("\(provider.maxZoom)")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Toggle("TMS Y-Axis", isOn: $provider.usesTMS)
+
+                Picker("File Type", selection: $provider.tileFileExtension) {
+                    Text("PNG").tag("png")
+                    Text("JPG").tag("jpg")
+                }
+            } header: {
+                Text("Rendering")
+            }
+        }
+        .navigationTitle(title)
+        .toolbar {
+            if showsToolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        onCancel?()
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        onSave?()
+                    }
+                }
+            }
+        }
     }
 }
