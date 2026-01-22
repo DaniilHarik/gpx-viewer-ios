@@ -237,9 +237,15 @@ private struct TileProviderEditorView: View {
         Form {
             Section {
                 TextField("Name", text: $provider.name)
-                TextField("Template URL", text: $provider.urlTemplate)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Template URL")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    TextEditor(text: $provider.urlTemplate)
+                        .frame(minHeight: 96)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
             } header: {
                 Text("Details")
             } footer: {
