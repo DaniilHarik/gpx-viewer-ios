@@ -1,9 +1,9 @@
 # GPX Viewer for iOS — Product Spec
 
-Updated: 2026-01-19
+Updated: 2026-01-23
 
 ## Product Overview
-- Purpose: privacy-first iOS app for browsing, filtering, and inspecting personal GPX tracks on a map with offline-friendly caching.
+- Purpose: iOS app for browsing, filtering, and inspecting personal GPX tracks on a map that is independent from online services.
 - Form factor: native iPhone app with a local GPX library stored on-device.
 - Success: fast launch (<1s cold on modern devices), instant track list refresh after import, smooth map interaction, reliable offline use.
 - Audience note: this spec is intended for contributors and maintainers.
@@ -67,7 +67,7 @@ Updated: 2026-01-19
   - Basic counters for cache hits/misses/errors shown in a hidden Diagnostics screen.
 
 ## Non-Functional Requirements
-- Privacy/offline: no third-party upload of GPX; only outbound calls are tile requests to configured providers (or none when Offline Mode is set).
+- Independence from online services: core browsing and track inspection work without network access; only outbound calls are optional tile requests to configured providers (or none when Offline Mode is set).
 - Performance: map remains responsive with large libraries; list filtering must feel instant.
 - Footprint: Swift/SwiftUI app; minimal third-party dependencies.
 - Compatibility: iOS 16+; supports iPhone only.
@@ -76,6 +76,15 @@ Updated: 2026-01-19
 ## Constraints and Open Questions
 - Tile provider rate limits and legal terms must be observed; no throttling built in.
   - Cache eviction is LRU-based with a 1 GB size cap; manual clearing remains available in Settings.
+
+## Suggested Features (Backlog)
+- Track details sheet: elevation profile with min/max/total gain/loss, duration, moving time, avg/max speed; scrubbing highlights the point on the map.
+- Waypoints: render GPX waypoints as tappable pins with name/description; toggle in Settings.
+- Multi-track overlay: allow multi-select in Library to compare tracks on the map with distinct colors and a small legend.
+- Organization: favorites and tags; filters for favorites/tags; bulk rename/delete actions.
+- Share/export: share selected tracks as GPX/GeoJSON, optionally ZIP multiple files.
+- Offline trip packs: download tiles for a selected bounding box and zoom range; stored in the existing cache.
+- Privacy redaction on export: optional radius mask that removes points near a chosen center before sharing.
 
 ## Security & Reliability (Summary)
 - All file access is restricted to the app sandbox.

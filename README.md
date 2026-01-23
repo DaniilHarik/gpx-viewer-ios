@@ -1,6 +1,6 @@
 # GPX Viewer for iOS
 
-Privacy-first iOS app for browsing GPX tracks on a map with offline-friendly tile caching.
+Independent-from-online-services iOS app for browsing GPX tracks on a map with offline-friendly tile caching.
 
 ## Features
 - Local GPX library stored in the app Documents directory.
@@ -40,7 +40,7 @@ max zoom, TMS toggle, and file type (png/jpg). Offline mode uses cached tiles on
 
 If you ship this app, ensure your usage complies with each provider's terms and rate limits.
 
-## Privacy
+## Independence from Online Services
 - GPX files stay in the app sandbox and are never uploaded.
 - Network access is limited to map tile requests for configured providers (or none when Offline Mode is on).
 
