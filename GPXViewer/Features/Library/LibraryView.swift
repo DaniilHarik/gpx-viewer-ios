@@ -183,9 +183,13 @@ private struct LibraryRow: View {
 
     private static func isValidDatePrefix(_ value: String) -> Bool {
         guard value.count == 10 else { return false }
+        return dateFormatter.date(from: value) != nil
+    }
+
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: value) != nil
-    }
+        return formatter
+    }()
 }
