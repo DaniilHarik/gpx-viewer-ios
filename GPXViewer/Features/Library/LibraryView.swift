@@ -23,7 +23,12 @@ struct LibraryView: View {
                     Section(header: Text(sectionTitle(for: year))) {
                         ForEach(sectionedFiles[year] ?? []) { file in
                             Button(action: { toggleSelection(for: file) }) {
-                                LibraryRow(file: file, isSelected: libraryStore.selectedFile?.id == file.id, error: libraryStore.parseErrors[file.url])
+                                LibraryRow(
+                                    file: file,
+                                    isSelected: libraryStore.selectedFile?.id == file.id,
+                                    stats: libraryStore.trackStats[file.url],
+                                    error: libraryStore.parseErrors[file.url]
+                                )
                             }
                             .buttonStyle(.plain)
                         }
@@ -110,34 +115,77 @@ struct LibraryView: View {
 private struct LibraryRow: View {
     let file: GPXFile
     let isSelected: Bool
+    let stats: TrackStats?
     let error: String?
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(file.displayName)
+                Text(displayTitle)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(isSelected ? Color.blue : Color.primary)
-                Text(file.relativePath)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if let subtitleText {
+                    Text(subtitleText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer()
 
-            if let error {
-                Text(error)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.red)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule().fill(Color.red.opacity(0.1))
-                    )
+            VStack(alignment: .trailing, spacing: 6) {
+                if let stats {
+                    Text(stats.distanceText)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                if let error {
+                    Text(error)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.red)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule().fill(Color.red.opacity(0.1))
+                        )
+                }
             }
         }
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
+    }
+
+    private var subtitleText: String? {
+        if let prefix = datePrefix {
+            return prefix
+        }
+        return file.relativePath
+    }
+
+    private var displayTitle: String {
+        guard let prefix = datePrefix else { return file.displayName }
+        var remainder = String(file.displayName.dropFirst(prefix.count))
+        remainder = remainder.trimmingCharacters(in: .whitespacesAndNewlines)
+        if remainder.hasPrefix("-") || remainder.hasPrefix("_") {
+            remainder = String(remainder.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return remainder.isEmpty ? file.displayName : remainder
+    }
+
+    private var datePrefix: String? {
+        let name = file.displayName
+        guard name.count >= 10 else { return nil }
+        let prefix = String(name.prefix(10))
+        guard Self.isValidDatePrefix(prefix) else { return nil }
+        return prefix
+    }
+
+    private static func isValidDatePrefix(_ value: String) -> Bool {
+        guard value.count == 10 else { return false }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: value) != nil
     }
 }

@@ -16,7 +16,7 @@ Updated: 2026-01-19
 - Library browsing: files are shown in the app's Documents directory.
 - Interaction:
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
-  - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; info panel is toggled via an info button and resets on selection change.
+  - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; track length is shown in the Library list.
   - Base map selector in Settings uses the configured tile providers list; defaults to Maa-amet kaart. Selection persists per-device.
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
@@ -48,8 +48,7 @@ Updated: 2026-01-19
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
   - Optional distance markers render along the track when enabled; interval selectable (1/3/5/10 km).
-  - Stats shown: distance (km), duration (moving duration with total-duration fallback), date (start timestamp localized), moving speed (km/h), elevation gain/loss (3 m threshold).
-  - Info panel hidden by default; toggled via an info button and resets per selection.
+  - Track length (km) is shown in the Library list.
   - Current location tracking uses standard iOS location permissions; foreground-only, with a user-visible indicator when active.
 - Filtering & list rendering
   - Files sorted by date (filename prefix) descending with fallback to file modification date; list items grouped by year.

@@ -6,6 +6,7 @@ final class LibraryStore: ObservableObject {
     @Published var currentTrack: GPXTrack?
     @Published var currentError: String?
     @Published var parseErrors: [URL: String] = [:]
+    @Published var trackStats: [URL: TrackStats] = [:]
     @Published var isScanning: Bool = false
 
     private let scanQueue = DispatchQueue(label: "LibraryStore.scan", qos: .userInitiated)
@@ -59,6 +60,9 @@ final class LibraryStore: ObservableObject {
 
             DispatchQueue.main.async {
                 self.files = results
+                let urls = Set(results.map { $0.url })
+                self.trackStats = self.trackStats.filter { urls.contains($0.key) }
+                self.parseErrors = self.parseErrors.filter { urls.contains($0.key) }
                 self.isScanning = false
             }
 
@@ -101,12 +105,15 @@ final class LibraryStore: ObservableObject {
                 DispatchQueue.main.async {
                     self.currentTrack = track
                     self.currentError = nil
+                    self.trackStats[file.url] = track.stats
+                    self.parseErrors[file.url] = nil
                 }
             } catch {
                 DispatchQueue.main.async {
                     self.currentTrack = nil
                     self.currentError = "Invalid GPX"
                     self.parseErrors[file.url] = "Invalid GPX"
+                    self.trackStats[file.url] = nil
                 }
             }
         }
@@ -130,6 +137,7 @@ final class LibraryStore: ObservableObject {
             DispatchQueue.main.async {
                 self.files.removeAll { urls.contains($0.url) }
                 self.parseErrors = self.parseErrors.filter { !urls.contains($0.key) }
+                self.trackStats = self.trackStats.filter { !urls.contains($0.key) }
                 if let selected = self.selectedFile, urls.contains(selected.url) {
                     self.deselect()
                 }
@@ -140,9 +148,11 @@ final class LibraryStore: ObservableObject {
     private func validateFiles(_ files: [GPXFile]) {
         validationQueue.async {
             var errors: [URL: String] = [:]
+            var stats: [URL: TrackStats] = [:]
             for file in files {
                 do {
-                    _ = try GPXParser().parse(url: file.url)
+                    let track = try GPXParser().parse(url: file.url)
+                    stats[file.url] = track.stats
                 } catch {
                     errors[file.url] = "Invalid GPX"
                 }
@@ -150,6 +160,7 @@ final class LibraryStore: ObservableObject {
 
             DispatchQueue.main.async {
                 self.parseErrors = errors
+                self.trackStats = stats
             }
         }
     }

@@ -9,7 +9,6 @@ struct MapScreen: View {
 
     @State private var followUser = false
     @State private var showUserLocation = false
-    @State private var showInfoPanel = false
     @State private var measurementEnabled = false
     @State private var measurementPoints: [CLLocationCoordinate2D] = []
 
@@ -58,11 +57,6 @@ struct MapScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                if let track = libraryStore.currentTrack, showInfoPanel {
-                    TrackInfoView(stats: track.stats)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -81,19 +75,6 @@ struct MapScreen: View {
                 Spacer()
                 HStack {
                     HStack(spacing: 12) {
-                        if libraryStore.currentTrack != nil {
-                            Button(action: { showInfoPanel.toggle() }) {
-                                Image(systemName: showInfoPanel ? "info.circle.fill" : "info.circle")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .padding(14)
-                                    .background(
-                                        Circle().fill(Color.black.opacity(0.75))
-                                    )
-                                    .shadow(radius: 6)
-                            }
-                        }
-
                         Button(action: toggleMeasurement) {
                             Image(systemName: measurementEnabled ? "ruler.fill" : "ruler")
                                 .font(.system(size: 18, weight: .bold))
@@ -131,9 +112,6 @@ struct MapScreen: View {
             } else if showUserLocation {
                 locationManager.startUpdating()
             }
-        }
-        .onChange(of: libraryStore.currentTrack?.id) { _ in
-            showInfoPanel = false
         }
     }
 
