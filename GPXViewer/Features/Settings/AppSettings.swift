@@ -82,6 +82,15 @@ struct BaseMapProvider: Identifiable, Codable, Equatable {
                 usesTMS: false,
                 tileFileExtension: "png",
                 attributionText: nil
+            ),
+            BaseMapProvider(
+                id: "openstreetmap",
+                name: "OpenStreetMap",
+                urlTemplate: "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                maxZoom: 19,
+                usesTMS: false,
+                tileFileExtension: "png",
+                attributionText: nil
             )
         ]
     }

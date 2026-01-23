@@ -34,9 +34,10 @@ Updated: 2026-01-23
   - Edit mode supports deleting tracks, which removes the file from Documents.
 - Map tiles
   - Use native map rendering with custom tile overlays.
-  - Tile providers are configurable in Settings; defaults include OpenTopoMap and Maa-amet kaart/foto (two separate layers).
-  - OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ.
-  - Maa-amet kaart: `https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis (invert Y when building tile URLs)
+- Tile providers are configurable in Settings; defaults include OpenTopoMap, OpenStreetMap, and Maa-amet kaart/foto (two separate layers).
+- OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ.
+- OpenStreetMap: `https://c.tile.openstreetmap.org/{z}/{x}/{y}.png`, zoom 0–19, standard XYZ.
+- Maa-amet kaart: `https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis (invert Y when building tile URLs)
   - Maa-amet foto: `https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis; cache as JPEG to preserve content type.
   - Tile caching uses a custom on-disk cache in the app's Caches directory; cache is per-provider and can be cleared in Settings.
   - Cache keys include provider, z/x/y, and file extension; do not cache 4xx/5xx responses.
