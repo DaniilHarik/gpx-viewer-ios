@@ -7,7 +7,7 @@ Independent-from-online-services iOS app for browsing GPX tracks on a map with o
 - Import via Files picker with multi-select and duplicate name handling.
 - Map view with track overlay, distance markers, and a measurement tool.
 - Base map options: configurable tile providers (defaults include OpenTopoMap and Maa-amet kaart/foto).
-- Offline mode uses cache-only map tiles.
+- Core library and track inspection work without network access; Offline mode uses cache-only map tiles.
 - Tile cache with size readout, clear action, and background LRU trimming.
 
 ## Requirements
