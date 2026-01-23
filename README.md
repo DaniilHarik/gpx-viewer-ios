@@ -2,17 +2,6 @@
 
 Privacy-first iOS app for browsing GPX tracks on a map with offline-friendly tile caching.
 
-## Contents
-- Features
-- Requirements
-- Install and Run
-- Usage
-- Architecture
-- Tile Providers
-- Privacy
-- Contributing
-- License
-
 ## Features
 - Local GPX library stored in the app Documents directory.
 - Import via Files picker with multi-select and duplicate name handling.
