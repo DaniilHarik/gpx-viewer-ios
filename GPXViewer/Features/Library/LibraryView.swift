@@ -157,39 +157,10 @@ private struct LibraryRow: View {
     }
 
     private var subtitleText: String? {
-        if let prefix = datePrefix {
-            return prefix
-        }
-        return file.relativePath
+        LibraryRowFormatter.subtitle(for: file)
     }
 
     private var displayTitle: String {
-        guard let prefix = datePrefix else { return file.displayName }
-        var remainder = String(file.displayName.dropFirst(prefix.count))
-        remainder = remainder.trimmingCharacters(in: .whitespacesAndNewlines)
-        if remainder.hasPrefix("-") || remainder.hasPrefix("_") {
-            remainder = String(remainder.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        return remainder.isEmpty ? file.displayName : remainder
+        LibraryRowFormatter.displayTitle(for: file.displayName)
     }
-
-    private var datePrefix: String? {
-        let name = file.displayName
-        guard name.count >= 10 else { return nil }
-        let prefix = String(name.prefix(10))
-        guard Self.isValidDatePrefix(prefix) else { return nil }
-        return prefix
-    }
-
-    private static func isValidDatePrefix(_ value: String) -> Bool {
-        guard value.count == 10 else { return false }
-        return dateFormatter.date(from: value) != nil
-    }
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
 }

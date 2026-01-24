@@ -30,13 +30,26 @@ final class TileCache {
 
     let stats = TileCacheStats()
 
-    private let fileManager = FileManager.default
-    private let ioQueue = DispatchQueue(label: "TileCache.IO", qos: .utility)
-    private let sizeLimit: Int64 = 1_073_741_824
-    private let trimInterval: TimeInterval = 30
-    private var lastTrimTime: Date = .distantPast
+    private let fileManager: FileManager
+    private let ioQueue: DispatchQueue
+    private let sizeLimit: Int64
+    private let trimInterval: TimeInterval
+    private var lastTrimTime: Date
+    private let baseDirectory: URL?
 
-    private init() {}
+    init(
+        fileManager: FileManager = .default,
+        baseDirectory: URL? = nil,
+        sizeLimit: Int64 = 1_073_741_824,
+        trimInterval: TimeInterval = 30
+    ) {
+        self.fileManager = fileManager
+        self.baseDirectory = baseDirectory
+        self.sizeLimit = sizeLimit
+        self.trimInterval = trimInterval
+        self.ioQueue = DispatchQueue(label: "TileCache.IO", qos: .utility)
+        self.lastTrimTime = .distantPast
+    }
 
     func load(provider: BaseMapProvider, path: MKTileOverlayPath) -> Data? {
         ioQueue.sync {
@@ -92,6 +105,16 @@ final class TileCache {
         }
     }
 
+    func trimNow(completion: (() -> Void)? = nil) {
+        ioQueue.async {
+            self.lastTrimTime = Date()
+            self.trimCache()
+            DispatchQueue.main.async {
+                completion?()
+            }
+        }
+    }
+
     private func cacheURL(provider: BaseMapProvider, path: MKTileOverlayPath) -> URL {
         let base = baseCacheDirectory()
         let providerDir = base.appendingPathComponent(provider.cacheKey, isDirectory: true)
@@ -102,6 +125,9 @@ final class TileCache {
     }
 
     private func baseCacheDirectory() -> URL {
+        if let baseDirectory {
+            return baseDirectory
+        }
         let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: "/tmp")
         return caches.appendingPathComponent("TileCache", isDirectory: true)
     }
@@ -129,34 +155,38 @@ final class TileCache {
         lastTrimTime = now
 
         ioQueue.async {
-            let base = self.baseCacheDirectory()
-            guard let enumerator = self.fileManager.enumerator(at: base, includingPropertiesForKeys: [.fileSizeKey, .contentModificationDateKey], options: [.skipsHiddenFiles]) else {
-                return
+            self.trimCache()
+        }
+    }
+
+    private func trimCache() {
+        let base = baseCacheDirectory()
+        guard let enumerator = fileManager.enumerator(at: base, includingPropertiesForKeys: [.fileSizeKey, .contentModificationDateKey], options: [.skipsHiddenFiles]) else {
+            return
+        }
+
+        var files: [(url: URL, size: Int64, date: Date)] = []
+        var totalSize: Int64 = 0
+
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey]) else {
+                continue
             }
+            if values.isDirectory == true { continue }
+            let size = Int64(values.fileSize ?? 0)
+            let date = values.contentModificationDate ?? .distantPast
+            files.append((fileURL, size, date))
+            totalSize += size
+        }
 
-            var files: [(url: URL, size: Int64, date: Date)] = []
-            var totalSize: Int64 = 0
+        guard totalSize > sizeLimit else { return }
 
-            for case let fileURL as URL in enumerator {
-                guard let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey]) else {
-                    continue
-                }
-                if values.isDirectory == true { continue }
-                let size = Int64(values.fileSize ?? 0)
-                let date = values.contentModificationDate ?? .distantPast
-                files.append((fileURL, size, date))
-                totalSize += size
-            }
+        let sorted = files.sorted { $0.date < $1.date }
+        var bytesToRemove = totalSize - sizeLimit
 
-            guard totalSize > self.sizeLimit else { return }
-
-            let sorted = files.sorted { $0.date < $1.date }
-            var bytesToRemove = totalSize - self.sizeLimit
-
-            for entry in sorted where bytesToRemove > 0 {
-                try? self.fileManager.removeItem(at: entry.url)
-                bytesToRemove -= entry.size
-            }
+        for entry in sorted where bytesToRemove > 0 {
+            try? fileManager.removeItem(at: entry.url)
+            bytesToRemove -= entry.size
         }
     }
 }

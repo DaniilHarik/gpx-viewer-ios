@@ -81,7 +81,7 @@ final class LibraryStore: ObservableObject {
                 guard url.pathExtension.lowercased() == "gpx" else { continue }
 
                 let destination = docsURL.appendingPathComponent(url.lastPathComponent)
-                let uniqueDestination = self.uniqueURL(for: destination)
+                let uniqueDestination = Self.uniqueURL(for: destination)
                 do {
                     try FileManager.default.copyItem(at: url, to: uniqueDestination)
                 } catch {
@@ -169,7 +169,7 @@ final class LibraryStore: ObservableObject {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: "/tmp")
     }
 
-    private func uniqueURL(for url: URL) -> URL {
+    static func uniqueURL(for url: URL) -> URL {
         var candidate = url
         var counter = 1
         while FileManager.default.fileExists(atPath: candidate.path) {
@@ -190,7 +190,7 @@ final class LibraryStore: ObservableObject {
         filePresenter = presenter
     }
 
-    private static func dateFromFilename(_ name: String) -> Date? {
+    static func dateFromFilename(_ name: String) -> Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
 

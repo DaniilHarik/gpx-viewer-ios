@@ -66,6 +66,24 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(settings.distanceMarkerInterval, .one)
     }
 
+    func testInvalidBaseMapIdFallsBackToFirstProvider() {
+        let defaults = UserDefaults.standard
+        defaults.set("missing-map", forKey: "baseMapId")
+
+        let settings = AppSettings()
+
+        XCTAssertEqual(settings.baseMap.id, BaseMapProvider.builtInProviders()[0].id)
+    }
+
+    func testRemovingSelectedBaseMapResetsToFirstProvider() {
+        let settings = AppSettings()
+        settings.baseMap = .openTopo
+
+        settings.tileProviders = [.openStreetMap]
+
+        XCTAssertEqual(settings.baseMapId, BaseMapProvider.openStreetMap.id)
+    }
+
     private func clearDefaults() {
         let defaults = UserDefaults.standard
         for key in keys {
