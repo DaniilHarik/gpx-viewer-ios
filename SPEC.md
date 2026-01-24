@@ -22,6 +22,7 @@ Updated: 2026-01-23
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
   - Measurement button uses the standard navigation bar background color; active state shows an orange ruler icon.
+  - Measurement summary banner matches the measurement button styling, including background color, orange accents, and drop shadow.
   - Locate-me button uses the same background; active state shows a blue location icon.
   - Map view stays in 2D; perspective/pitch is disabled.
 

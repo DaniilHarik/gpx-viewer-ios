@@ -180,12 +180,9 @@ private struct MeasurementSummaryView: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Measure")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.8))
                 Text(summaryText)
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.orange)
             }
 
             Spacer(minLength: 0)
@@ -196,7 +193,7 @@ private struct MeasurementSummaryView: View {
                         Button(action: onUndo) {
                             Image(systemName: "arrow.uturn.backward.circle.fill")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.orange)
                         }
                         .accessibilityLabel("Undo last segment")
                     }
@@ -204,7 +201,7 @@ private struct MeasurementSummaryView: View {
                     Button(action: onClear) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.orange)
                     }
                     .accessibilityLabel("Clear measurement")
                 }
@@ -213,7 +210,7 @@ private struct MeasurementSummaryView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(
-            Capsule().fill(Color.black.opacity(0.75))
+            Capsule().fill(Color(UIColor.systemBackground))
         )
         .shadow(radius: 6)
     }
