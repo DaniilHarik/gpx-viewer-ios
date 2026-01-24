@@ -11,7 +11,6 @@
 		1AB58B42054D45B0AB2627ED /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B54035CE1A43998E4099AF /* XCTest.framework */; };
 		1D9F6FCEB37F4C4DB0F0C0A6 /* AppSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6A1A7E5D1A4E25A11E5B24 /* AppSettingsTests.swift */; };
 		23F316E9BD3142E79E95D2A3 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49BD94B200D4E90A421F832 /* AppSettings.swift */; };
-		25678593EF2A4C5FA88D4EF5 /* TrackInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B34FA2CF757467E82B3A8D7 /* TrackInfoView.swift */; };
 		280E8080CB52414480D89054 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22A52F12066457DBBE856E5 /* LibraryView.swift */; };
 		2D5B67D46974489A99A5A22B /* TrackStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */; };
 		30AC733CF2BC414B9D480C72 /* LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA87F13B5AF46EE913FE833 /* LibraryStore.swift */; };
@@ -61,7 +60,6 @@
 		03C75FFBA8F7435BA8E77230 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0416CF2C3E2F4C1EA7428B1D /* GPXViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GPXViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		056515BA5436415AB640A71B /* GPXViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPXViewerApp.swift; sourceTree = "<group>"; };
-		0B34FA2CF757467E82B3A8D7 /* TrackInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackInfoView.swift; sourceTree = "<group>"; };
 		0C37C977602B4325956E6291 /* TrackStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackStats.swift; sourceTree = "<group>"; };
 		29B54035CE1A43998E4099AF /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		2E539CE8FF414F9FBCDE1498 /* MapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapScreen.swift; sourceTree = "<group>"; };
@@ -243,7 +241,6 @@
 			children = (
 				2E539CE8FF414F9FBCDE1498 /* MapScreen.swift */,
 				F417A716BCA2413CA6734381 /* MapView.swift */,
-				0B34FA2CF757467E82B3A8D7 /* TrackInfoView.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -415,7 +412,6 @@
 				0C82E9335BAE45B1B408C12B /* SettingsView.swift in Sources */,
 				9044665E83034B54991E6AE5 /* TileCache.swift in Sources */,
 				AC934D8B54C8468DB6C719E5 /* TileOverlay.swift in Sources */,
-				25678593EF2A4C5FA88D4EF5 /* TrackInfoView.swift in Sources */,
 				DADCFE2692B04E7D94B6B9D0 /* TrackStats.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
