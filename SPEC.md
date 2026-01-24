@@ -60,6 +60,7 @@ Updated: 2026-01-23
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
   - Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
+  - Tile Cache section appears above Library.
   - Diagnostics screen available by long-pressing the Version label.
   - Settings are shown in settings.png (may drift).
   - Reset App State clears stored settings back to defaults; it does not delete library files or the tile cache.

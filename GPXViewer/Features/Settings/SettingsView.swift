@@ -56,12 +56,6 @@ struct SettingsView: View {
                     }
                 }
 
-                Section(header: Text("Library")) {
-                    Button("Reset App State", role: .destructive) {
-                        showResetConfirm = true
-                    }
-                }
-
                 Section(header: Text("Tile Cache")) {
                     HStack {
                         Text("Cache Size")
@@ -72,6 +66,12 @@ struct SettingsView: View {
 
                     Button("Clear Tile Cache") {
                         showCacheConfirm = true
+                    }
+                }
+
+                Section(header: Text("Library")) {
+                    Button("Reset App State", role: .destructive) {
+                        showResetConfirm = true
                     }
                 }
 
