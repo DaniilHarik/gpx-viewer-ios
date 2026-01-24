@@ -54,44 +54,52 @@ struct BaseMapProvider: Identifiable, Codable, Equatable {
         return URL(string: urlString) ?? URL(fileURLWithPath: "/")
     }
 
+    static let maaKaart = BaseMapProvider(
+        id: "maa-kaart",
+        name: "Maa-amet kaart",
+        urlTemplate: "https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE",
+        maxZoom: 19,
+        usesTMS: true,
+        tileFileExtension: "png",
+        attributionText: nil
+    )
+
+    static let maaFoto = BaseMapProvider(
+        id: "maa-foto",
+        name: "Maa-amet foto",
+        urlTemplate: "https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE",
+        maxZoom: 19,
+        usesTMS: true,
+        tileFileExtension: "jpg",
+        attributionText: nil
+    )
+
+    static let openTopo = BaseMapProvider(
+        id: "open-topo",
+        name: "OpenTopoMap",
+        urlTemplate: "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
+        maxZoom: 15,
+        usesTMS: false,
+        tileFileExtension: "png",
+        attributionText: nil
+    )
+
+    static let openStreetMap = BaseMapProvider(
+        id: "openstreetmap",
+        name: "OpenStreetMap",
+        urlTemplate: "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        maxZoom: 19,
+        usesTMS: false,
+        tileFileExtension: "png",
+        attributionText: nil
+    )
+
     static func builtInProviders() -> [BaseMapProvider] {
         [
-            BaseMapProvider(
-                id: "maa-kaart",
-                name: "Maa-amet kaart",
-                urlTemplate: "https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE",
-                maxZoom: 19,
-                usesTMS: true,
-                tileFileExtension: "png",
-                attributionText: nil
-            ),
-            BaseMapProvider(
-                id: "maa-foto",
-                name: "Maa-amet foto",
-                urlTemplate: "https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE",
-                maxZoom: 19,
-                usesTMS: true,
-                tileFileExtension: "jpg",
-                attributionText: nil
-            ),
-            BaseMapProvider(
-                id: "open-topo",
-                name: "OpenTopoMap",
-                urlTemplate: "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
-                maxZoom: 15,
-                usesTMS: false,
-                tileFileExtension: "png",
-                attributionText: nil
-            ),
-            BaseMapProvider(
-                id: "openstreetmap",
-                name: "OpenStreetMap",
-                urlTemplate: "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                maxZoom: 19,
-                usesTMS: false,
-                tileFileExtension: "png",
-                attributionText: nil
-            )
+            maaKaart,
+            maaFoto,
+            openTopo,
+            openStreetMap
         ]
     }
 
@@ -164,7 +172,12 @@ final class AppSettings: ObservableObject {
     }
 
     var baseMap: BaseMapProvider {
-        tileProviders.first { $0.id == baseMapId } ?? tileProviders.first ?? BaseMapProvider.builtInProviders()[0]
+        get {
+            tileProviders.first { $0.id == baseMapId } ?? tileProviders.first ?? BaseMapProvider.builtInProviders()[0]
+        }
+        set {
+            baseMapId = newValue.id
+        }
     }
 
     init() {

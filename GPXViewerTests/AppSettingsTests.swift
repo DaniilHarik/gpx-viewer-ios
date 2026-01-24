@@ -6,6 +6,8 @@ final class AppSettingsTests: XCTestCase {
         "theme",
         "offlineMode",
         "baseMap",
+        "baseMapId",
+        "tileProviders",
         "distanceMarkersEnabled",
         "distanceMarkerInterval"
     ]

@@ -18,7 +18,7 @@ final class GPXViewerUITests: XCTestCase {
         tabBar.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.switches["Offline Mode"].exists)
-        XCTAssertTrue(app.switches["1 km Distance Markers"].exists)
+        XCTAssertTrue(app.switches["Distance Markers"].exists)
     }
 
     func testBaseMapSelectionFlow() {
