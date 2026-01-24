@@ -160,6 +160,8 @@ private struct MeasurementControlView: View {
     let onToggle: () -> Void
     let onUndo: () -> Void
     let onClear: () -> Void
+    private let actionIconSize: CGFloat = 18
+    private let actionButtonSize: CGFloat = 30
 
     var body: some View {
         if measurementEnabled {
@@ -182,18 +184,18 @@ private struct MeasurementControlView: View {
                         if pointCount > 1 {
                             Button(action: onUndo) {
                                 Image(systemName: "arrow.uturn.backward.circle.fill")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.system(size: actionIconSize, weight: .semibold))
                                     .foregroundStyle(.orange)
-                                    .frame(width: 26, height: 26)
+                                    .frame(width: actionButtonSize, height: actionButtonSize)
                             }
                             .accessibilityLabel("Undo last segment")
                         }
 
                         Button(action: onClear) {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.system(size: actionIconSize, weight: .semibold))
                                 .foregroundStyle(.orange)
-                                .frame(width: 26, height: 26)
+                                .frame(width: actionButtonSize, height: actionButtonSize)
                         }
                         .accessibilityLabel("Clear measurement")
                     }
