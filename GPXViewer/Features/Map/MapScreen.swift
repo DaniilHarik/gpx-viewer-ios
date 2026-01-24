@@ -78,10 +78,10 @@ struct MapScreen: View {
                         Button(action: toggleMeasurement) {
                             Image(systemName: measurementEnabled ? "ruler.fill" : "ruler")
                                 .font(.system(size: 18, weight: .bold))
-                                .foregroundStyle(.white)
-                                .padding(14)
+                                .foregroundStyle(measurementEnabled ? .orange : .primary)
+                                .frame(width: controlButtonSize, height: controlButtonSize)
                                 .background(
-                                    Circle().fill(Color.black.opacity(0.75))
+                                    Circle().fill(Color(UIColor.systemBackground))
                                 )
                                 .shadow(radius: 6)
                         }
@@ -93,11 +93,11 @@ struct MapScreen: View {
                     Button(action: toggleFollow) {
                         Image(systemName: followUser ? "location.fill" : "location")
                             .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(14)
+                            .foregroundStyle(followUser ? .blue : .primary)
+                            .frame(width: controlButtonSize, height: controlButtonSize)
                             .background(
-                                Circle().fill(Color.black.opacity(0.75))
-                            ) 
+                                Circle().fill(Color(UIColor.systemBackground))
+                            )
                             .shadow(radius: 6)
                     }
                     .padding(.trailing, 16)
@@ -117,6 +117,10 @@ struct MapScreen: View {
 
     private var buttonBottomPadding: CGFloat {
         16
+    }
+
+    private var controlButtonSize: CGFloat {
+        46
     }
 
     private var measurementSummaryText: String {
