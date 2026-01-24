@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    @EnvironmentObject private var libraryStore: LibraryStore
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -22,6 +23,10 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
                 .tag(2)
+        }
+        .onOpenURL { url in
+            libraryStore.importFiles([url])
+            selectedTab = 1
         }
     }
 }
