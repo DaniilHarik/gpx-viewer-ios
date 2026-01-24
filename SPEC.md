@@ -30,7 +30,7 @@ Updated: 2026-01-23
   - Import via the system Files picker (multi-select); files are copied into Documents and name collisions get a numeric suffix.
   - Documents directory changes (including iCloud/Files provider updates) trigger a rescan via NSFilePresenter on a background queue.
   - Only `.gpx` files are indexed (case-insensitive); invalid GPX surfaces an inline error state.
-  - Manual "Rescan Library" action reindexes the file list.
+  - Library rescans run automatically when Documents changes are observed.
   - Edit mode supports deleting tracks, which removes the file from Documents.
 - Map tiles
   - Use native map rendering with custom tile overlays.
@@ -58,7 +58,7 @@ Updated: 2026-01-23
 - Settings
   - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
-  - Rescan Library, Reset App State.
+  - Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
   - Diagnostics screen available by long-pressing the Version label.
   - Settings are shown in settings.png (may drift).

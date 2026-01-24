@@ -57,10 +57,6 @@ struct SettingsView: View {
                 }
 
                 Section(header: Text("Library")) {
-                    Button("Rescan Library") {
-                        libraryStore.scanDocuments()
-                    }
-
                     Button("Reset App State", role: .destructive) {
                         showResetConfirm = true
                     }
