@@ -42,26 +42,6 @@ struct MapScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
-            VStack(alignment: .leading, spacing: 8) {
-                if measurementEnabled {
-                    MeasurementSummaryView(
-                        summaryText: measurementSummaryText,
-                        pointCount: measurementPoints.count,
-                        onUndo: {
-                            if measurementPoints.count > 1 {
-                                measurementPoints.removeLast()
-                            }
-                        },
-                        onClear: { measurementPoints.removeAll() }
-                    )
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, bannerCenter.message == nil ? 12 : 64)
-
             if let attribution = settings.baseMap.attributionText {
                 VStack {
                     Spacer()
@@ -73,19 +53,20 @@ struct MapScreen: View {
 
             VStack {
                 Spacer()
-                HStack {
-                    HStack(spacing: 12) {
-                        Button(action: toggleMeasurement) {
-                            Image(systemName: measurementEnabled ? "ruler.fill" : "ruler")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundStyle(measurementEnabled ? .orange : .primary)
-                                .frame(width: controlButtonSize, height: controlButtonSize)
-                                .background(
-                                    Circle().fill(Color(UIColor.systemBackground))
-                                )
-                                .shadow(radius: 6)
-                        }
-                    }
+                HStack(alignment: .bottom) {
+                    MeasurementControlView(
+                        measurementEnabled: measurementEnabled,
+                        buttonSize: controlButtonSize,
+                        summaryText: measurementSummaryText,
+                        pointCount: measurementPoints.count,
+                        onToggle: toggleMeasurement,
+                        onUndo: {
+                            if measurementPoints.count > 1 {
+                                measurementPoints.removeLast()
+                            }
+                        },
+                        onClear: { measurementPoints.removeAll() }
+                    )
                     .padding(.leading, 16)
                     .padding(.bottom, buttonBottomPadding)
 
@@ -171,47 +152,73 @@ struct MapScreen: View {
     }
 }
 
-private struct MeasurementSummaryView: View {
+private struct MeasurementControlView: View {
+    let measurementEnabled: Bool
+    let buttonSize: CGFloat
     let summaryText: String
     let pointCount: Int
+    let onToggle: () -> Void
     let onUndo: () -> Void
     let onClear: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
+        if measurementEnabled {
+            HStack(spacing: 8) {
+                Button(action: onToggle) {
+                    Image(systemName: "ruler.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(.orange)
+                        .frame(width: buttonSize, height: buttonSize)
+                }
+                .accessibilityLabel("Disable measurement")
+
                 Text(summaryText)
-                    .font(.headline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.orange)
-            }
+                    .lineLimit(1)
 
-            Spacer(minLength: 0)
-
-            if pointCount > 0 {
-                HStack(spacing: 8) {
-                    if pointCount > 1 {
-                        Button(action: onUndo) {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(.orange)
+                if pointCount > 0 {
+                    HStack(spacing: 6) {
+                        if pointCount > 1 {
+                            Button(action: onUndo) {
+                                Image(systemName: "arrow.uturn.backward.circle.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.orange)
+                                    .frame(width: 26, height: 26)
+                            }
+                            .accessibilityLabel("Undo last segment")
                         }
-                        .accessibilityLabel("Undo last segment")
-                    }
 
-                    Button(action: onClear) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(.orange)
+                        Button(action: onClear) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.orange)
+                                .frame(width: 26, height: 26)
+                        }
+                        .accessibilityLabel("Clear measurement")
                     }
-                    .accessibilityLabel("Clear measurement")
                 }
             }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(
+                Capsule().fill(Color(UIColor.systemBackground))
+            )
+            .shadow(radius: 6)
+        } else {
+            Button(action: onToggle) {
+                Image(systemName: "ruler")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(width: buttonSize, height: buttonSize)
+                    .background(
+                        Circle().fill(Color(UIColor.systemBackground))
+                    )
+                    .shadow(radius: 6)
+            }
+            .buttonStyle(.plain)
+            .tint(.primary)
+            .accessibilityLabel("Enable measurement")
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(
-            Capsule().fill(Color(UIColor.systemBackground))
-        )
-        .shadow(radius: 6)
     }
 }
