@@ -43,11 +43,11 @@ Updated: 2026-01-23
 - OpenTopoMap: `https://a.tile.opentopomap.org/{z}/{x}/{y}.png`, zoom 0–15, standard XYZ.
 - OpenStreetMap: `https://c.tile.openstreetmap.org/{z}/{x}/{y}.png`, zoom 0–19, standard XYZ.
 - Maa-amet kaart: `https://tiles.maaamet.ee/tm/tms/1.0.0/kaart@GMC/{z}/{x}/{y}.png&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis (invert Y when building tile URLs)
-  - Maa-amet foto: `https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis; cache as JPEG to preserve content type.
-  - Tile caching uses a custom on-disk cache in the app's Caches directory; cache is per-provider and can be cleared in Settings.
-  - Cache keys include provider, z/x/y, and file extension; do not cache 4xx/5xx responses.
-  - Cache size cap (default 1 GB) with LRU eviction; trimming runs in the background and never blocks map interaction. Users can clear the cache in Settings; size is not user-configurable.
-  - Offline mode uses cache-only reads; misses surface as empty tiles without retrying.
+ - Maa-amet foto: `https://tiles.maaamet.ee/tm/tms/1.0.0/foto@GMC/{z}/{x}/{y}.jpg&ASUTUS=MAAAMET&KESKKOND=LIVE&IS=TMSNAIDE`, zoom 0–19, TMS Y-axis; cache as JPEG to preserve content type.
+ - Tile caching uses a custom on-disk cache in the app's Caches directory; cache is per-provider and can be cleared in Settings.
+ - Cache keys include provider, z/x/y, and file extension; do not cache 4xx/5xx responses.
+ - Cache size cap (default 1 GB) with LRU eviction; trimming runs in the background and never blocks map interaction. Users can clear the cache in Settings; size is not user-configurable.
+ - Offline mode uses cache-only reads; misses surface as empty tiles without retrying.
 - Map tools
   - Measurement mode draws a dashed line between tapped points and shows the cumulative distance.
   - Undo action removes the most recent measurement segment.
