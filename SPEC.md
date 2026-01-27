@@ -19,6 +19,7 @@ Updated: 2026-01-23
   - Tap a track to load (exclusive select); map auto-zooms to its bounds and switches to the Map tab; tapping the same track again deselects it; track length is shown in the Library list.
   - If a track name starts with a YYYY-MM-DD prefix, the prefix is shown as the subtitle and removed from the title in the Library list.
   - Base map selector in Settings uses the configured tile providers list; defaults to Maa-amet kaart. Selection persists per-device.
+  - Base map selection rows in Settings are fully tappable across the entire row.
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
   - Measurement control uses the standard navigation bar background color; active state shows an orange ruler icon.
