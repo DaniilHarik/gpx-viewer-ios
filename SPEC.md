@@ -69,7 +69,6 @@ Updated: 2026-01-23
   - Tile Cache size readout and Clear Tile Cache.
   - Tile Cache section appears above Library.
   - Diagnostics screen available by long-pressing the Version label.
-  - Settings are shown in settings.png (may drift).
   - Reset App State clears stored settings (including starred tracks) back to defaults; it does not delete library files or the tile cache.
 - Error handling & observability
   - GPX parse errors are shown inline; tiles that fail to load surface a non-blocking banner.
@@ -79,7 +78,7 @@ Updated: 2026-01-23
 - Independence from online services: core browsing and track inspection work without network access; only outbound calls are optional tile requests to configured providers (or none when Offline Mode is set).
 - Performance: map remains responsive with large libraries; list filtering must feel instant.
 - Footprint: Swift/SwiftUI app; minimal third-party dependencies.
-- Compatibility: iOS 16+; supports iPhone only.
+- Compatibility: iOS 26+; supports iPhone only.
 - Testing: unit tests cover GPX parsing, track stats, base map URLs, and tile cache; UI tests cover tab navigation and settings/base map selection.
 
 ## Constraints and Open Questions
