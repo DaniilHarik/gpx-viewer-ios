@@ -19,21 +19,46 @@ struct LibraryView: View {
                     }
                 }
 
+                if !starredFiles.isEmpty {
+                    Section(header: Text("Starred")) {
+                        ForEach(starredFiles) { file in
+                            LibraryRow(
+                                file: file,
+                                isSelected: libraryStore.selectedFile?.id == file.id,
+                                isStarred: true,
+                                stats: libraryStore.trackStats[file.url],
+                                error: libraryStore.parseErrors[file.url],
+                                onSelect: { toggleSelection(for: file) },
+                                onToggleStar: { libraryStore.toggleStar(for: file) }
+                            )
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                starAction(for: file)
+                            }
+                        }
+                        .onDelete { offsets in
+                            confirmDelete(in: starredFiles, offsets: offsets)
+                        }
+                    }
+                }
+
                 ForEach(sectionedFiles.keys.sorted(by: >), id: \.self) { year in
                     Section(header: Text(sectionTitle(for: year))) {
                         ForEach(sectionedFiles[year] ?? []) { file in
-                            Button(action: { toggleSelection(for: file) }) {
-                                LibraryRow(
-                                    file: file,
-                                    isSelected: libraryStore.selectedFile?.id == file.id,
-                                    stats: libraryStore.trackStats[file.url],
-                                    error: libraryStore.parseErrors[file.url]
-                                )
+                            LibraryRow(
+                                file: file,
+                                isSelected: libraryStore.selectedFile?.id == file.id,
+                                isStarred: libraryStore.isStarred(file),
+                                stats: libraryStore.trackStats[file.url],
+                                error: libraryStore.parseErrors[file.url],
+                                onSelect: { toggleSelection(for: file) },
+                                onToggleStar: { libraryStore.toggleStar(for: file) }
+                            )
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                starAction(for: file)
                             }
-                            .buttonStyle(.plain)
                         }
                         .onDelete { offsets in
-                            confirmDelete(in: year, offsets: offsets)
+                            confirmDelete(in: sectionedFiles[year] ?? [], offsets: offsets)
                         }
                     }
                 }
@@ -82,8 +107,16 @@ struct LibraryView: View {
         }
     }
 
+    private var starredFiles: [GPXFile] {
+        filteredFiles.filter { libraryStore.isStarred($0) }
+    }
+
+    private var unstarredFiles: [GPXFile] {
+        filteredFiles.filter { !libraryStore.isStarred($0) }
+    }
+
     private var sectionedFiles: [Int: [GPXFile]] {
-        Dictionary(grouping: filteredFiles) { $0.year ?? 0 }
+        Dictionary(grouping: unstarredFiles) { $0.year ?? 0 }
     }
 
     private func sectionTitle(for year: Int) -> String {
@@ -100,8 +133,7 @@ struct LibraryView: View {
         }
     }
 
-    private func confirmDelete(in year: Int, offsets: IndexSet) {
-        guard let files = sectionedFiles[year] else { return }
+    private func confirmDelete(in files: [GPXFile], offsets: IndexSet) {
         let toDelete = offsets.compactMap { index -> GPXFile? in
             guard files.indices.contains(index) else { return nil }
             return files[index]
@@ -110,13 +142,35 @@ struct LibraryView: View {
         pendingDeletion = toDelete
         showingDeleteConfirm = true
     }
+
+    @ViewBuilder
+    private func starAction(for file: GPXFile) -> some View {
+        if libraryStore.isStarred(file) {
+            Button {
+                libraryStore.toggleStar(for: file)
+            } label: {
+                Label("Unstar", systemImage: "star.slash")
+            }
+            .tint(.gray)
+        } else {
+            Button {
+                libraryStore.toggleStar(for: file)
+            } label: {
+                Label("Star", systemImage: "star.fill")
+            }
+            .tint(.yellow)
+        }
+    }
 }
 
 private struct LibraryRow: View {
     let file: GPXFile
     let isSelected: Bool
+    let isStarred: Bool
     let stats: TrackStats?
     let error: String?
+    let onSelect: () -> Void
+    let onToggleStar: () -> Void
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -134,6 +188,12 @@ private struct LibraryRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 6) {
+                if isStarred {
+                    Image(systemName: "star.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.yellow)
+                        .accessibilityLabel("Starred")
+                }
                 if let stats {
                     Text(stats.distanceText)
                         .font(.caption.weight(.semibold))
@@ -154,6 +214,12 @@ private struct LibraryRow: View {
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
+        .onTapGesture(perform: onSelect)
+        .contextMenu {
+            Button(action: onToggleStar) {
+                Label(isStarred ? "Unstar" : "Star", systemImage: isStarred ? "star.slash" : "star.fill")
+            }
+        }
     }
 
     private var subtitleText: String? {

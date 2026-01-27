@@ -8,15 +8,20 @@ final class LibraryStore: ObservableObject {
     @Published var parseErrors: [URL: String] = [:]
     @Published var trackStats: [URL: TrackStats] = [:]
     @Published var isScanning: Bool = false
+    @Published private(set) var starredRelativePaths: Set<String> = [] {
+        didSet { saveStarredFiles() }
+    }
 
     private let scanQueue = DispatchQueue(label: "LibraryStore.scan", qos: .userInitiated)
     private let parseQueue = DispatchQueue(label: "LibraryStore.parse", qos: .userInitiated)
     private let validationQueue = DispatchQueue(label: "LibraryStore.validation", qos: .utility)
     private let presenterQueue = OperationQueue()
     private var filePresenter: DocumentsFilePresenter?
+    private let starredKey = "starredRelativePaths"
 
     init() {
         presenterQueue.maxConcurrentOperationCount = 1
+        loadStarredFiles()
         startFilePresenter()
         scanDocuments()
     }
@@ -63,6 +68,7 @@ final class LibraryStore: ObservableObject {
                 let urls = Set(results.map { $0.url })
                 self.trackStats = self.trackStats.filter { urls.contains($0.key) }
                 self.parseErrors = self.parseErrors.filter { urls.contains($0.key) }
+                self.pruneStarredFiles(keeping: results)
                 self.isScanning = false
             }
 
@@ -128,6 +134,7 @@ final class LibraryStore: ObservableObject {
     func deleteFiles(_ filesToDelete: [GPXFile]) {
         guard !filesToDelete.isEmpty else { return }
         let urls = Set(filesToDelete.map { $0.url })
+        let relativePaths = Set(filesToDelete.map { $0.relativePath })
 
         scanQueue.async {
             for file in filesToDelete {
@@ -138,11 +145,28 @@ final class LibraryStore: ObservableObject {
                 self.files.removeAll { urls.contains($0.url) }
                 self.parseErrors = self.parseErrors.filter { !urls.contains($0.key) }
                 self.trackStats = self.trackStats.filter { !urls.contains($0.key) }
+                self.starredRelativePaths.subtract(relativePaths)
                 if let selected = self.selectedFile, urls.contains(selected.url) {
                     self.deselect()
                 }
             }
         }
+    }
+
+    func isStarred(_ file: GPXFile) -> Bool {
+        starredRelativePaths.contains(file.relativePath)
+    }
+
+    func toggleStar(for file: GPXFile) {
+        if isStarred(file) {
+            starredRelativePaths.remove(file.relativePath)
+        } else {
+            starredRelativePaths.insert(file.relativePath)
+        }
+    }
+
+    func resetStarred() {
+        starredRelativePaths = []
     }
 
     private func validateFiles(_ files: [GPXFile]) {
@@ -231,6 +255,25 @@ final class LibraryStore: ObservableObject {
             return String(standardized.dropFirst("/private".count))
         }
         return standardized
+    }
+
+    private func loadStarredFiles() {
+        if let stored = UserDefaults.standard.array(forKey: starredKey) as? [String] {
+            starredRelativePaths = Set(stored)
+        } else {
+            starredRelativePaths = []
+        }
+    }
+
+    private func saveStarredFiles() {
+        UserDefaults.standard.set(Array(starredRelativePaths), forKey: starredKey)
+    }
+
+    private func pruneStarredFiles(keeping files: [GPXFile]) {
+        let valid = Set(files.map { $0.relativePath })
+        if !starredRelativePaths.isSubset(of: valid) {
+            starredRelativePaths = starredRelativePaths.intersection(valid)
+        }
     }
 }
 

@@ -90,6 +90,7 @@ struct SettingsView: View {
             .confirmationDialog("Reset app state?", isPresented: $showResetConfirm) {
                 Button("Reset", role: .destructive) {
                     settings.reset()
+                    libraryStore.resetStarred()
                     libraryStore.scanDocuments()
                 }
                 Button("Cancel", role: .cancel) {}

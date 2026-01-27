@@ -60,6 +60,8 @@ Updated: 2026-01-23
 - Filtering & list rendering
   - Files sorted by date (filename prefix) descending with fallback to file modification date; list items grouped by year.
   - Search filters by filename or relative path (case-insensitive).
+  - Library supports starring tracks; starred tracks appear in a separate top group and are removed from year sections.
+  - Star state persists on-device and is cleared automatically when a starred file is deleted.
 - Settings
   - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
@@ -68,7 +70,7 @@ Updated: 2026-01-23
   - Tile Cache section appears above Library.
   - Diagnostics screen available by long-pressing the Version label.
   - Settings are shown in settings.png (may drift).
-  - Reset App State clears stored settings back to defaults; it does not delete library files or the tile cache.
+  - Reset App State clears stored settings (including starred tracks) back to defaults; it does not delete library files or the tile cache.
 - Error handling & observability
   - GPX parse errors are shown inline; tiles that fail to load surface a non-blocking banner.
   - Basic counters for cache hits/misses/errors shown in a hidden Diagnostics screen.
@@ -88,7 +90,7 @@ Updated: 2026-01-23
 - Track details sheet: elevation profile with min/max/total gain/loss, duration, moving time, avg/max speed; scrubbing highlights the point on the map.
 - Waypoints: render GPX waypoints as tappable pins with name/description; toggle in Settings.
 - Multi-track overlay: allow multi-select in Library to compare tracks on the map with distinct colors and a small legend.
-- Organization: favorites and tags; filters for favorites/tags; bulk rename/delete actions.
+- Organization: tags; filters for tags; bulk rename/delete actions.
 - Share/export: share selected tracks as GPX/GeoJSON, optionally ZIP multiple files.
 - Offline trip packs: download tiles for a selected bounding box and zoom range; stored in the existing cache.
 - Privacy redaction on export: optional radius mask that removes points near a chosen center before sharing.
