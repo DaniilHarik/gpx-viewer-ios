@@ -13,7 +13,7 @@ final class LibraryStore: ObservableObject {
     }
 
     private let scanQueue = DispatchQueue(label: "LibraryStore.scan", qos: .userInitiated)
-    private let parseQueue = DispatchQueue(label: "LibraryStore.parse", qos: .userInitiated)
+    private let parseQueue = DispatchQueue(label: "LibraryStore.parse", qos: .userInitiated, attributes: .concurrent)
     private let validationQueue = DispatchQueue(label: "LibraryStore.validation", qos: .utility)
     private let presenterQueue = OperationQueue()
     private var filePresenter: DocumentsFilePresenter?

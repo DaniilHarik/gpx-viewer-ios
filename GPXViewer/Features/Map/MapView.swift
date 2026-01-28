@@ -115,6 +115,7 @@ struct MapView: UIViewRepresentable {
         coordinator.trackID = track.id
         coordinator.pendingTrackRenderID = track.id
         mapView.addOverlay(polyline, level: .aboveLabels)
+        coordinator.notifyTrackRenderedIfNeeded(track.id)
 
         if !track.bounds.isNull {
             let padding = UIEdgeInsets(top: 120, left: 40, bottom: 180, right: 40)
@@ -308,13 +309,17 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
 
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
         guard let pendingTrackRenderID else { return }
-        if lastRenderedTrackID == pendingTrackRenderID {
-            self.pendingTrackRenderID = nil
+        notifyTrackRenderedIfNeeded(pendingTrackRenderID)
+    }
+
+    func notifyTrackRenderedIfNeeded(_ trackID: UUID) {
+        if lastRenderedTrackID == trackID {
+            pendingTrackRenderID = nil
             return
         }
-        lastRenderedTrackID = pendingTrackRenderID
-        self.pendingTrackRenderID = nil
-        parent.onTrackRendered(pendingTrackRenderID)
+        lastRenderedTrackID = trackID
+        pendingTrackRenderID = nil
+        parent.onTrackRendered(trackID)
     }
 
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {

@@ -13,6 +13,8 @@ struct MapScreen: View {
     @State private var measurementPoints: [CLLocationCoordinate2D] = []
     @State private var isMapLoading = false
     @State private var loadingTrackID: UUID?
+    @State private var loadingDelayWorkItem: DispatchWorkItem?
+    @State private var loadingToken = UUID()
     @State private var renderedTrackID: UUID?
 
     var body: some View {
@@ -97,16 +99,14 @@ struct MapScreen: View {
         }
         .onAppear {
             if let trackID = libraryStore.currentTrack?.id, renderedTrackID != trackID {
-                isMapLoading = true
-                loadingTrackID = trackID
+                beginLoading(for: trackID)
             }
         }
         .onChange(of: libraryStore.selectedFile?.id) { _, newValue in
             if newValue == nil {
                 stopLoading()
             } else if libraryStore.currentTrack == nil {
-                isMapLoading = true
-                loadingTrackID = nil
+                beginLoading(for: nil)
             }
         }
         .onChange(of: libraryStore.currentTrack?.id) { _, newValue in
@@ -116,9 +116,10 @@ struct MapScreen: View {
                 }
                 return
             }
-            if renderedTrackID != trackID {
-                isMapLoading = true
-                loadingTrackID = trackID
+            if renderedTrackID == trackID {
+                stopLoading()
+            } else {
+                beginLoading(for: trackID)
             }
         }
         .onChange(of: libraryStore.currentError) { _, newValue in
@@ -198,9 +199,32 @@ struct MapScreen: View {
         }
     }
 
+    private func beginLoading(for trackID: UUID?) {
+        loadingTrackID = trackID
+        isMapLoading = false
+        loadingDelayWorkItem?.cancel()
+        let pendingTrackID = trackID
+        let token = UUID()
+        loadingToken = token
+        let workItem = DispatchWorkItem {
+            guard loadingToken == token else { return }
+            if let pendingTrackID, renderedTrackID == pendingTrackID {
+                return
+            }
+            if loadingTrackID == pendingTrackID {
+                isMapLoading = true
+            }
+        }
+        loadingDelayWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: workItem)
+    }
+
     private func stopLoading() {
         isMapLoading = false
         loadingTrackID = nil
+        loadingDelayWorkItem?.cancel()
+        loadingDelayWorkItem = nil
+        loadingToken = UUID()
     }
 }
 
