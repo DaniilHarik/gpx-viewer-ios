@@ -11,6 +11,9 @@ struct MapScreen: View {
     @State private var showUserLocation = false
     @State private var measurementEnabled = false
     @State private var measurementPoints: [CLLocationCoordinate2D] = []
+    @State private var isMapLoading = false
+    @State private var loadingTrackID: UUID?
+    @State private var renderedTrackID: UUID?
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -32,7 +35,8 @@ struct MapScreen: View {
                 },
                 onMeasureTap: { coordinate in
                     measurementPoints.append(coordinate)
-                }
+                },
+                onTrackRendered: handleTrackRendered
             )
             .ignoresSafeArea()
 
@@ -84,6 +88,42 @@ struct MapScreen: View {
                     .padding(.trailing, 16)
                     .padding(.bottom, buttonBottomPadding)
                 }
+            }
+
+            if isMapLoading {
+                MapLoadingOverlayView()
+                    .transition(.opacity)
+            }
+        }
+        .onAppear {
+            if let trackID = libraryStore.currentTrack?.id, renderedTrackID != trackID {
+                isMapLoading = true
+                loadingTrackID = trackID
+            }
+        }
+        .onChange(of: libraryStore.selectedFile?.id) { newValue in
+            if newValue == nil {
+                stopLoading()
+            } else if libraryStore.currentTrack == nil {
+                isMapLoading = true
+                loadingTrackID = nil
+            }
+        }
+        .onChange(of: libraryStore.currentTrack?.id) { newValue in
+            guard let trackID = newValue else {
+                if libraryStore.currentError != nil || libraryStore.selectedFile == nil {
+                    stopLoading()
+                }
+                return
+            }
+            if renderedTrackID != trackID {
+                isMapLoading = true
+                loadingTrackID = trackID
+            }
+        }
+        .onChange(of: libraryStore.currentError) { newValue in
+            if newValue != nil {
+                stopLoading()
             }
         }
         .onChange(of: locationManager.isAuthorized) { newValue in
@@ -149,6 +189,35 @@ struct MapScreen: View {
 
     private func toggleMeasurement() {
         measurementEnabled.toggle()
+    }
+
+    private func handleTrackRendered(_ trackID: UUID) {
+        renderedTrackID = trackID
+        if loadingTrackID == nil || loadingTrackID == trackID {
+            stopLoading()
+        }
+    }
+
+    private func stopLoading() {
+        isMapLoading = false
+        loadingTrackID = nil
+    }
+}
+
+private struct MapLoadingOverlayView: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.15)
+                .ignoresSafeArea()
+            ProgressView("Loading track")
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.systemBackground))
+                )
+                .shadow(radius: 8)
+        }
     }
 }
 

@@ -15,6 +15,7 @@ struct MapView: UIViewRepresentable {
     let measurementEnabled: Bool
     let onUserInteraction: () -> Void
     let onMeasureTap: (CLLocationCoordinate2D) -> Void
+    let onTrackRendered: (UUID) -> Void
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -96,6 +97,7 @@ struct MapView: UIViewRepresentable {
                 coordinator.polyline = nil
                 coordinator.trackID = nil
             }
+            coordinator.pendingTrackRenderID = nil
             return
         }
 
@@ -111,6 +113,7 @@ struct MapView: UIViewRepresentable {
         let polyline = MKPolyline(coordinates: coords, count: coords.count)
         coordinator.polyline = polyline
         coordinator.trackID = track.id
+        coordinator.pendingTrackRenderID = track.id
         mapView.addOverlay(polyline, level: .aboveLabels)
 
         if !track.bounds.isNull {
@@ -269,6 +272,8 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var measurementLastCoordinate: CLLocationCoordinate2D?
     var measurementEnabled = false
     var userHeading: CLHeading?
+    var pendingTrackRenderID: UUID?
+    var lastRenderedTrackID: UUID?
     private var userInteracting = false
 
     init(parent: MapView) {
@@ -299,6 +304,17 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
             userInteracting = false
             parent.onUserInteraction()
         }
+    }
+
+    func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
+        guard fullyRendered, let pendingTrackRenderID else { return }
+        if lastRenderedTrackID == pendingTrackRenderID {
+            self.pendingTrackRenderID = nil
+            return
+        }
+        lastRenderedTrackID = pendingTrackRenderID
+        self.pendingTrackRenderID = nil
+        parent.onTrackRendered(pendingTrackRenderID)
     }
 
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
