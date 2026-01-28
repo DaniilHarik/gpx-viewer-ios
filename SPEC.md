@@ -34,6 +34,7 @@ Updated: 2026-01-23
   - Import via the system Files picker (multi-select); files are copied into Documents and name collisions get a numeric suffix.
   - Accept GPX files shared from other apps (share sheet/Open in) and import them into Documents with the same duplicate name handling.
   - Files opened from Files are not opened in place; they are copied into Documents.
+  - Files staged in Documents/Inbox are moved into Documents on import and are not shown as separate library entries.
   - Documents directory changes (including iCloud/Files provider updates) trigger a rescan via NSFilePresenter on a background queue.
   - Library rescans are debounced to coalesce rapid file system updates.
   - Only `.gpx` files are indexed (case-insensitive); invalid GPX surfaces an inline error state.

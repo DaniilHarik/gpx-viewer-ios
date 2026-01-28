@@ -87,10 +87,23 @@ final class LibraryStore: ObservableObject {
 
                 let destination = docsURL.appendingPathComponent(url.lastPathComponent)
                 let uniqueDestination = Self.uniqueURL(for: destination)
+                let isInbox = self.isInboxURL(url, docsURL: docsURL)
                 do {
-                    try FileManager.default.copyItem(at: url, to: uniqueDestination)
+                    if isInbox {
+                        try FileManager.default.moveItem(at: url, to: uniqueDestination)
+                    } else {
+                        try FileManager.default.copyItem(at: url, to: uniqueDestination)
+                    }
                 } catch {
-                    continue
+                    if isInbox {
+                        do {
+                            try FileManager.default.copyItem(at: url, to: uniqueDestination)
+                        } catch {
+                            continue
+                        }
+                    } else {
+                        continue
+                    }
                 }
             }
 
@@ -342,6 +355,7 @@ final class LibraryStore: ObservableObject {
                 if values?.isDirectory == true { continue }
                 guard fileURL.pathExtension.lowercased() == "gpx" else { continue }
                 let relativePath = self.relativePath(for: fileURL, docsURL: docsURL)
+                if self.isInboxRelativePath(relativePath) { continue }
                 let displayName = fileURL.deletingPathExtension().lastPathComponent
                 let sortDate = Self.dateFromFilename(displayName) ?? values?.contentModificationDate
                 let year = sortDate.flatMap { Calendar.current.dateComponents([.year], from: $0).year }
@@ -440,6 +454,16 @@ final class LibraryStore: ObservableObject {
             return String(standardized.dropFirst("/private".count))
         }
         return standardized
+    }
+
+    private func isInboxURL(_ fileURL: URL, docsURL: URL) -> Bool {
+        let inboxPath = normalizedPath(docsURL.appendingPathComponent("Inbox"))
+        let filePath = normalizedPath(fileURL)
+        return filePath == inboxPath || filePath.hasPrefix(inboxPath + "/")
+    }
+
+    private func isInboxRelativePath(_ relativePath: String) -> Bool {
+        relativePath == "Inbox" || relativePath.hasPrefix("Inbox/")
     }
 
     private func loadStarredFiles() {
