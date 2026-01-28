@@ -12,6 +12,8 @@
 		1D9F6FCEB37F4C4DB0F0C0A6 /* AppSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6A1A7E5D1A4E25A11E5B24 /* AppSettingsTests.swift */; };
 		23F316E9BD3142E79E95D2A3 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49BD94B200D4E90A421F832 /* AppSettings.swift */; };
 		280E8080CB52414480D89054 /* TracksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D22A52F12066457DBBE856E5 /* TracksView.swift */; };
+		1A2B3C4D5E6F708192A3B4C5 /* PointsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F708192A3B4C /* PointsStore.swift */; };
+		2B3C4D5E6F708192A3B4C5D6 /* PointsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978877665544 /* PointsView.swift */; };
 		08F7E6D5C4B32109ABCDEF12 /* TracksStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B3A2D1E0F90876ABCDEF02 /* TracksStoreTests.swift */; };
 		1908F7E6D5C43210ABCDEF13 /* CachedTileOverlayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C4B3A2F1E0D987ABCDEF03 /* CachedTileOverlayTests.swift */; };
 		2D5B67D46974489A99A5A22B /* TrackStatsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */; };
@@ -71,6 +73,7 @@
 		421DA7B510C14AF99B3F076F /* GPXViewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPXViewerUITests.swift; sourceTree = "<group>"; };
 		4B159E555ABF4A4688D5B412 /* GPXViewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GPXViewerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA87F13B5AF46EE913FE833 /* TracksStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracksStore.swift; sourceTree = "<group>"; };
+		E1A2B3C4D5E6F708192A3B4C /* PointsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsStore.swift; sourceTree = "<group>"; };
 		696055ED6CFA44EAB3A6DD8A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6D5C6640DDA64965A7ED1661 /* TrackStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackStatsTests.swift; sourceTree = "<group>"; };
 		7A1881DAAC534C85953E4C36 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -96,6 +99,7 @@
 		E4F051D90FAA4395A54438ED /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		F417A716BCA2413CA6734381 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		F49BD94B200D4E90A421F832 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A6978877665544 /* PointsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,9 +246,19 @@
 			children = (
 				E5F6789012345678A1B2C3D4 /* Map */,
 				F6789012345678A1B2C3D4E5 /* Tracks */,
+				C7D8E9F0A1B2C3D4E5F60718 /* Points */,
 				6789012345678A1B2C3D4E5F6 /* Settings */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		C7D8E9F0A1B2C3D4E5F60718 /* Points */ = {
+			isa = PBXGroup;
+			children = (
+				E1A2B3C4D5E6F708192A3B4C /* PointsStore.swift */,
+				F1E2D3C4B5A6978877665544 /* PointsView.swift */,
+			);
+			path = Points;
 			sourceTree = "<group>";
 		};
 		E5F6789012345678A1B2C3D4 /* Map */ = {
@@ -420,6 +434,8 @@
 				E87D225255FB4DF9BEA87225 /* GPXParser.swift in Sources */,
 				62DD46B0D8F04CEEAF074927 /* GPXViewerApp.swift in Sources */,
 				E6D5C4B3A2F10987ABCDEF10 /* TracksRowFormatter.swift in Sources */,
+				1A2B3C4D5E6F708192A3B4C5 /* PointsStore.swift in Sources */,
+				2B3C4D5E6F708192A3B4C5D6 /* PointsView.swift in Sources */,
 				30AC733CF2BC414B9D480C72 /* TracksStore.swift in Sources */,
 				280E8080CB52414480D89054 /* TracksView.swift in Sources */,
 				FA0CD51178C0483293F635D8 /* LocationManager.swift in Sources */,

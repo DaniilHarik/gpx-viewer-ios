@@ -18,11 +18,17 @@ struct ContentView: View {
                 }
                 .tag(1)
 
+            PointsView(selectedTab: $selectedTab)
+                .tabItem {
+                    Label("Points", systemImage: "mappin.and.ellipse")
+                }
+                .tag(2)
+
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
-                .tag(2)
+                .tag(3)
         }
         .onOpenURL { url in
             tracksStore.importFiles([url])

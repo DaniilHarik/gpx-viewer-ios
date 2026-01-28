@@ -6,6 +6,7 @@ Independent-from-online-services iOS app for browsing GPX tracks on a map with o
 - Local track library stored in the app Documents directory with automatic rescans.
 - Import via Files picker (multi-select) or share sheet/Open in with duplicate name handling.
 - Tracks tools: search by name/path, star favorites, rename, delete, and track length display.
+- Points tab with saved locations (title, icon, coordinates), starring, and map pin preview.
 - Map view with custom tile providers, 2D track overlay, distance markers (1/3/5/10 km), waypoints, and a measurement tool (undo/clear).
 - Base map selection (defaults include OpenTopoMap, OpenStreetMap, and Maa-amet kaart/foto) with offline mode.
 - Tile cache (1 GB LRU) with size readout, clear action, and diagnostics counters.
@@ -25,6 +26,11 @@ Independent-from-online-services iOS app for browsing GPX tracks on a map with o
 - Import tracks: open the Tracks tab and tap the import button.
 - View a track: tap a file to load it and jump to the Map tab.
 - Track length: shown in the Tracks list.
+- Add points: open the Points tab, tap the add button, and enter a title, icon, and coordinates.
+- Use current location: in the new point form, tap "Use Current Location" to fill coordinates.
+- View a point: tap a point row to jump to the Map tab and center on the pin.
+- Edit points: swipe a point row and tap Edit or use the context menu.
+- Star/delete points: swipe or use edit mode from the Points tab.
 - Measure distance: tap the ruler button, then tap the map to add points; undo or clear as needed.
 - Star or rename: long-press a track row for quick actions.
 - Settings: choose theme, offline mode, base map, tile providers, distance markers, and waypoints.

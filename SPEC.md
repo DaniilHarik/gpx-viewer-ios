@@ -12,7 +12,7 @@ Updated: 2026-01-28
 - Outdoor enthusiasts who maintain a personal GPX library and want a private, offline-capable viewer.
 
 ## User Experience
-- Layout: tabbed layout on iPhone with Map, Tracks, and Settings tabs.
+- Layout: tabbed layout on iPhone with Map, Tracks, Points, and Settings tabs.
 - Tracks browsing: files are shown in the app's Documents directory.
 - Interaction:
   - Theme: explicit Light/Dark toggle in Settings; selection persists and overrides system preference.
@@ -29,6 +29,7 @@ Updated: 2026-01-28
   - Selecting a track shows a loading overlay on the Map tab (after a 250 ms delay) until the track polyline is ready; base map tiles do not need to finish loading.
   - Rapid track switching always favors the most recent selection; earlier in-flight parses are ignored.
   - Waypoints render as tappable pins that show name only when enabled; descriptions are intentionally not shown to avoid map clutter.
+  - Points: saved points list shows icon, title, and coordinates; selecting a point jumps to the Map tab and centers on the point marker.
 
  
 ## Functional Requirements
@@ -71,6 +72,13 @@ Updated: 2026-01-28
   - Tracks list supports starring tracks; starred tracks appear in a separate top group and are removed from year sections.
   - Star state persists on-device and is cleared automatically when a starred file is deleted.
   - Tracks can be renamed from the Tracks tab; renaming updates the underlying file in Documents and preserves stars/selection.
+- Points
+  - Points are stored on-device and persist between launches.
+  - Each point includes a title, SF Symbol icon, latitude, and longitude in decimal degrees.
+  - Add point supports filling coordinates from the current location (with location permission).
+  - Points can be added, edited, starred, and deleted.
+  - Starred points appear in a top group above the main points list.
+  - Selecting a point shows a marker on the Map tab and centers the map on it.
 - Settings
   - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector, Waypoints toggle.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
@@ -78,7 +86,7 @@ Updated: 2026-01-28
   - Tile Cache size readout and Clear Tile Cache.
   - Tile Cache section appears above Tracks.
   - Diagnostics screen available by long-pressing the Version label.
-  - Reset App State clears stored settings (including starred tracks) back to defaults; it does not delete library files or the tile cache.
+  - Reset App State clears stored settings (including starred tracks and points) back to defaults; it does not delete library files or the tile cache.
 - Error handling & observability
   - GPX parse errors are shown inline; tiles that fail to load surface a non-blocking banner.
   - Basic counters for cache hits/misses/errors shown in a hidden Diagnostics screen.

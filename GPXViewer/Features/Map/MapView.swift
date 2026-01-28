@@ -14,6 +14,7 @@ struct MapView: UIViewRepresentable {
     let userHeading: CLHeading?
     let measurementPoints: [CLLocationCoordinate2D]
     let measurementEnabled: Bool
+    let selectedPoint: SavedPoint?
     let onUserInteraction: () -> Void
     let onMeasureTap: (CLLocationCoordinate2D) -> Void
     let onTrackRendered: (UUID) -> Void
@@ -50,6 +51,7 @@ struct MapView: UIViewRepresentable {
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateWaypoints(on: mapView, coordinator: context.coordinator)
+        updateSelectedPoint(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
 
         return mapView
@@ -64,6 +66,7 @@ struct MapView: UIViewRepresentable {
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
         updateWaypoints(on: mapView, coordinator: context.coordinator)
+        updateSelectedPoint(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
         context.coordinator.userHeading = userHeading
         context.coordinator.updateUserHeading(on: mapView)
@@ -269,6 +272,44 @@ struct MapView: UIViewRepresentable {
         coordinator.measurementEnabled = measurementEnabled
     }
 
+    private func updateSelectedPoint(on mapView: MKMapView, coordinator: Coordinator) {
+        guard let selectedPoint else {
+            if let annotation = coordinator.selectedPointAnnotation {
+                mapView.removeAnnotation(annotation)
+            }
+            coordinator.selectedPointAnnotation = nil
+            coordinator.selectedPointID = nil
+            coordinator.selectedPointSnapshot = nil
+            return
+        }
+
+        let isSamePoint = coordinator.selectedPointID == selectedPoint.id
+        if isSamePoint,
+           coordinator.selectedPointSnapshot == selectedPoint,
+           coordinator.selectedPointAnnotation != nil {
+            return
+        }
+
+        if let annotation = coordinator.selectedPointAnnotation {
+            mapView.removeAnnotation(annotation)
+        }
+
+        let annotation = SavedPointAnnotation(point: selectedPoint)
+        coordinator.selectedPointAnnotation = annotation
+        coordinator.selectedPointID = selectedPoint.id
+        coordinator.selectedPointSnapshot = selectedPoint
+        mapView.addAnnotation(annotation)
+        mapView.selectAnnotation(annotation, animated: true)
+        if !isSamePoint {
+            let region = MKCoordinateRegion(
+                center: annotation.coordinate,
+                latitudinalMeters: 1200,
+                longitudinalMeters: 1200
+            )
+            mapView.setRegion(region, animated: true)
+        }
+    }
+
     private func interpolateCoordinate(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, fraction: Double) -> CLLocationCoordinate2D {
         let latitude = start.latitude + (end.latitude - start.latitude) * fraction
         let longitude = start.longitude + (end.longitude - start.longitude) * fraction
@@ -305,6 +346,9 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var measurementPointCount = 0
     var measurementLastCoordinate: CLLocationCoordinate2D?
     var measurementEnabled = false
+    var selectedPointAnnotation: SavedPointAnnotation?
+    var selectedPointID: UUID?
+    var selectedPointSnapshot: SavedPoint?
     var userHeading: CLHeading?
     var pendingTrackRenderID: UUID?
     var lastRenderedTrackID: UUID?
@@ -417,6 +461,14 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
             return view
         }
 
+        if let point = annotation as? SavedPointAnnotation {
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: SavedPointAnnotationView.reuseIdentifier) as? SavedPointAnnotationView
+                ?? SavedPointAnnotationView(annotation: point, reuseIdentifier: SavedPointAnnotationView.reuseIdentifier)
+            view.annotation = point
+            view.configure(for: point)
+            return view
+        }
+
         return nil
     }
 
@@ -455,6 +507,75 @@ final class MeasurementPointAnnotation: NSObject, MKAnnotation {
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
         super.init()
+    }
+}
+
+final class SavedPointAnnotation: NSObject, MKAnnotation {
+    let coordinate: CLLocationCoordinate2D
+    let titleText: String
+    let subtitleText: String
+    let iconName: String
+    let isStarred: Bool
+
+    var title: String? { titleText }
+    var subtitle: String? { subtitleText }
+
+    private static let coordinateFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.minimumFractionDigits = 4
+        formatter.maximumFractionDigits = 6
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
+
+    init(point: SavedPoint) {
+        coordinate = point.coordinate
+        titleText = point.title
+        iconName = point.iconName
+        isStarred = point.isStarred
+        let latText = SavedPointAnnotation.format(point.latitude)
+        let lonText = SavedPointAnnotation.format(point.longitude)
+        subtitleText = "Lat \(latText)  Lon \(lonText)"
+        super.init()
+    }
+
+    private static func format(_ value: Double) -> String {
+        coordinateFormatter.string(from: NSNumber(value: value)) ?? String(format: "%.5f", value)
+    }
+}
+
+final class SavedPointAnnotationView: MKAnnotationView {
+    static let reuseIdentifier = "SavedPointAnnotationView"
+    private static let circleSize: CGFloat = 24
+    private static let symbolSize: CGFloat = 11
+
+    func configure(for annotation: SavedPointAnnotation) {
+        canShowCallout = true
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: Self.symbolSize, weight: .semibold)
+        let symbol = UIImage(systemName: annotation.iconName, withConfiguration: symbolConfig)
+            ?? UIImage(systemName: "mappin.circle.fill", withConfiguration: symbolConfig)
+        let tintColor = annotation.isStarred ? UIColor.systemYellow : UIColor.systemBlue
+        image = Self.renderIcon(symbol: symbol, backgroundColor: tintColor)
+    }
+
+    private static func renderIcon(symbol: UIImage?, backgroundColor: UIColor) -> UIImage? {
+        let size = CGSize(width: circleSize, height: circleSize)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            context.cgContext.setFillColor(backgroundColor.cgColor)
+            context.cgContext.fillEllipse(in: rect)
+
+            guard let symbol else { return }
+            let symbolSize = symbol.size
+            let symbolOrigin = CGPoint(
+                x: (size.width - symbolSize.width) / 2,
+                y: (size.height - symbolSize.height) / 2
+            )
+            symbol.withTintColor(.white, renderingMode: .alwaysOriginal)
+                .draw(at: symbolOrigin)
+        }
     }
 }
 

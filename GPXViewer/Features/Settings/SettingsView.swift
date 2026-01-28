@@ -4,6 +4,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var tracksStore: TracksStore
+    @EnvironmentObject private var pointsStore: PointsStore
 
     @State private var showResetConfirm = false
     @State private var showCacheConfirm = false
@@ -93,6 +94,7 @@ struct SettingsView: View {
                     settings.reset()
                     tracksStore.resetStarred()
                     tracksStore.scanDocuments()
+                    pointsStore.reset()
                 }
                 Button("Cancel", role: .cancel) {}
             }

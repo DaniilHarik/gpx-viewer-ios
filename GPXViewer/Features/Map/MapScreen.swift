@@ -4,6 +4,7 @@ import MapKit
 struct MapScreen: View {
     @EnvironmentObject private var settings: AppSettings
     @EnvironmentObject private var tracksStore: TracksStore
+    @EnvironmentObject private var pointsStore: PointsStore
     @EnvironmentObject private var locationManager: LocationManager
     @EnvironmentObject private var bannerCenter: BannerCenter
 
@@ -31,6 +32,7 @@ struct MapScreen: View {
                 userHeading: locationManager.heading,
                 measurementPoints: measurementPoints,
                 measurementEnabled: measurementEnabled,
+                selectedPoint: pointsStore.selectedPoint,
                 onUserInteraction: {
                     if followUser {
                         followUser = false
@@ -126,6 +128,11 @@ struct MapScreen: View {
         .onChange(of: tracksStore.currentError) { _, newValue in
             if newValue != nil {
                 stopLoading()
+            }
+        }
+        .onChange(of: pointsStore.selectedPoint?.id) { _, newValue in
+            if newValue != nil {
+                followUser = false
             }
         }
         .onChange(of: locationManager.isAuthorized) { _, newValue in
