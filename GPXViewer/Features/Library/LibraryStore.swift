@@ -17,6 +17,9 @@ final class LibraryStore: ObservableObject {
     private let validationQueue = DispatchQueue(label: "LibraryStore.validation", qos: .utility)
     private let presenterQueue = OperationQueue()
     private var filePresenter: DocumentsFilePresenter?
+    private var scanDebounceWorkItem: DispatchWorkItem?
+    private let scanDebounceInterval: TimeInterval = 0.4
+    private var cachedModificationDates: [URL: Date] = [:]
     private let starredKey = "starredRelativePaths"
 
     enum RenameError: LocalizedError, Equatable {
@@ -67,46 +70,8 @@ final class LibraryStore: ObservableObject {
     }
 
     func scanDocuments() {
-        let docsURL = documentsDirectory()
-        DispatchQueue.main.async {
-            self.isScanning = true
-        }
-
-        scanQueue.async {
-            let enumerator = FileManager.default.enumerator(at: docsURL, includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey], options: [.skipsHiddenFiles])
-
-            var results: [GPXFile] = []
-            while let fileURL = enumerator?.nextObject() as? URL {
-                let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey])
-                if values?.isDirectory == true { continue }
-                guard fileURL.pathExtension.lowercased() == "gpx" else { continue }
-                let relativePath = self.relativePath(for: fileURL, docsURL: docsURL)
-                let displayName = fileURL.deletingPathExtension().lastPathComponent
-                let sortDate = Self.dateFromFilename(displayName) ?? values?.contentModificationDate
-                let year = sortDate.flatMap { Calendar.current.dateComponents([.year], from: $0).year }
-
-                results.append(GPXFile(id: fileURL, url: fileURL, displayName: displayName, relativePath: relativePath, sortDate: sortDate, year: year))
-            }
-
-            results.sort { (lhs, rhs) in
-                let left = lhs.sortDate ?? .distantPast
-                let right = rhs.sortDate ?? .distantPast
-                if left == right {
-                    return lhs.displayName > rhs.displayName
-                }
-                return left > right
-            }
-
-            DispatchQueue.main.async {
-                self.files = results
-                let urls = Set(results.map { $0.url })
-                self.trackStats = self.trackStats.filter { urls.contains($0.key) }
-                self.parseErrors = self.parseErrors.filter { urls.contains($0.key) }
-                self.pruneStarredFiles(keeping: results)
-                self.isScanning = false
-            }
-
-            self.validateFiles(results)
+        DispatchQueue.main.async { [weak self] in
+            self?.scheduleScan()
         }
     }
 
@@ -142,18 +107,26 @@ final class LibraryStore: ObservableObject {
         parseQueue.async {
             do {
                 let track = try GPXParser().parse(url: file.url)
+                let modDate = try? file.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
                 DispatchQueue.main.async {
                     self.currentTrack = track
                     self.currentError = nil
                     self.trackStats[file.url] = track.stats
                     self.parseErrors[file.url] = nil
+                    if let modDate {
+                        self.cachedModificationDates[file.url] = modDate
+                    }
                 }
             } catch {
+                let modDate = try? file.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
                 DispatchQueue.main.async {
                     self.currentTrack = nil
                     self.currentError = "Invalid GPX"
                     self.parseErrors[file.url] = "Invalid GPX"
                     self.trackStats[file.url] = nil
+                    if let modDate {
+                        self.cachedModificationDates[file.url] = modDate
+                    }
                 }
             }
         }
@@ -179,6 +152,7 @@ final class LibraryStore: ObservableObject {
                 self.files.removeAll { urls.contains($0.url) }
                 self.parseErrors = self.parseErrors.filter { !urls.contains($0.key) }
                 self.trackStats = self.trackStats.filter { !urls.contains($0.key) }
+                self.cachedModificationDates = self.cachedModificationDates.filter { !urls.contains($0.key) }
                 self.starredRelativePaths.subtract(relativePaths)
                 if let selected = self.selectedFile, urls.contains(selected.url) {
                     self.deselect()
@@ -284,6 +258,11 @@ final class LibraryStore: ObservableObject {
                 if let error = self.parseErrors.removeValue(forKey: file.url) {
                     self.parseErrors[renamedFile.url] = error
                 }
+                if let cachedDate = self.cachedModificationDates.removeValue(forKey: file.url) {
+                    self.cachedModificationDates[renamedFile.url] = cachedDate
+                } else if let modDate = try? uniqueDestination.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate {
+                    self.cachedModificationDates[renamedFile.url] = modDate
+                }
 
                 if self.selectedFile?.url == file.url {
                     self.selectedFile = renamedFile
@@ -294,22 +273,103 @@ final class LibraryStore: ObservableObject {
         }
     }
 
-    private func validateFiles(_ files: [GPXFile]) {
+    private func validateFiles(_ files: [GPXFile], modificationDates: [URL: Date]) {
+        let existingStats = trackStats
+        let existingErrors = parseErrors
+        let existingCachedDates = cachedModificationDates
+
         validationQueue.async {
             var errors: [URL: String] = [:]
             var stats: [URL: TrackStats] = [:]
+            var cachedDates: [URL: Date] = [:]
+
             for file in files {
+                if let modDate = modificationDates[file.url],
+                   let cachedDate = existingCachedDates[file.url],
+                   cachedDate == modDate {
+                    if let cachedStats = existingStats[file.url] {
+                        stats[file.url] = cachedStats
+                    }
+                    if let cachedError = existingErrors[file.url] {
+                        errors[file.url] = cachedError
+                    }
+                    cachedDates[file.url] = cachedDate
+                    continue
+                }
+
                 do {
                     let track = try GPXParser().parse(url: file.url)
                     stats[file.url] = track.stats
                 } catch {
                     errors[file.url] = "Invalid GPX"
                 }
+
+                if let modDate = modificationDates[file.url] {
+                    cachedDates[file.url] = modDate
+                }
             }
 
             DispatchQueue.main.async {
                 self.parseErrors = errors
                 self.trackStats = stats
+                self.cachedModificationDates = cachedDates
+            }
+        }
+    }
+
+    private func scheduleScan() {
+        scanDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.performScanDocuments()
+        }
+        scanDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + scanDebounceInterval, execute: workItem)
+    }
+
+    private func performScanDocuments() {
+        let docsURL = documentsDirectory()
+        DispatchQueue.main.async {
+            self.isScanning = true
+        }
+
+        scanQueue.async {
+            let enumerator = FileManager.default.enumerator(at: docsURL, includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey], options: [.skipsHiddenFiles])
+
+            var results: [GPXFile] = []
+            var modificationDates: [URL: Date] = [:]
+            while let fileURL = enumerator?.nextObject() as? URL {
+                let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey])
+                if values?.isDirectory == true { continue }
+                guard fileURL.pathExtension.lowercased() == "gpx" else { continue }
+                let relativePath = self.relativePath(for: fileURL, docsURL: docsURL)
+                let displayName = fileURL.deletingPathExtension().lastPathComponent
+                let sortDate = Self.dateFromFilename(displayName) ?? values?.contentModificationDate
+                let year = sortDate.flatMap { Calendar.current.dateComponents([.year], from: $0).year }
+                if let modDate = values?.contentModificationDate {
+                    modificationDates[fileURL] = modDate
+                }
+
+                results.append(GPXFile(id: fileURL, url: fileURL, displayName: displayName, relativePath: relativePath, sortDate: sortDate, year: year))
+            }
+
+            results.sort { (lhs, rhs) in
+                let left = lhs.sortDate ?? .distantPast
+                let right = rhs.sortDate ?? .distantPast
+                if left == right {
+                    return lhs.displayName > rhs.displayName
+                }
+                return left > right
+            }
+
+            DispatchQueue.main.async {
+                self.files = results
+                let urls = Set(results.map { $0.url })
+                self.trackStats = self.trackStats.filter { urls.contains($0.key) }
+                self.parseErrors = self.parseErrors.filter { urls.contains($0.key) }
+                self.cachedModificationDates = self.cachedModificationDates.filter { urls.contains($0.key) }
+                self.pruneStarredFiles(keeping: results)
+                self.isScanning = false
+                self.validateFiles(results, modificationDates: modificationDates)
             }
         }
     }

@@ -35,8 +35,10 @@ Updated: 2026-01-23
   - Accept GPX files shared from other apps (share sheet/Open in) and import them into Documents with the same duplicate name handling.
   - Files opened from Files are not opened in place; they are copied into Documents.
   - Documents directory changes (including iCloud/Files provider updates) trigger a rescan via NSFilePresenter on a background queue.
+  - Library rescans are debounced to coalesce rapid file system updates.
   - Only `.gpx` files are indexed (case-insensitive); invalid GPX surfaces an inline error state.
   - Library rescans run automatically when Documents changes are observed.
+  - Track stats and parse error state are cached per file and recomputed only when the file modification date changes.
   - Edit mode supports deleting tracks, which removes the file from Documents.
 - Map tiles
   - Use native map rendering with custom tile overlays.
