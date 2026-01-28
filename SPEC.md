@@ -28,7 +28,7 @@ Updated: 2026-01-28
   - Map view stays in 2D; perspective/pitch is disabled.
   - Selecting a track shows a loading overlay on the Map tab (after a 250 ms delay) until the track polyline is ready; base map tiles do not need to finish loading.
   - Rapid track switching always favors the most recent selection; earlier in-flight parses are ignored.
-  - Waypoints render as tappable pins that show name/description when enabled.
+  - Waypoints render as tappable pins that show name only when enabled; descriptions are intentionally not shown to avoid map clutter.
 
  
 ## Functional Requirements
@@ -62,7 +62,7 @@ Updated: 2026-01-28
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
   - Optional distance markers render along the track when enabled; interval selectable (1/3/5/10 km).
-  - Optional waypoints render as tappable pins with name/description.
+  - Optional waypoints render as tappable pins with name only; descriptions are intentionally not shown to avoid map clutter.
   - Track length (km) is shown in the Library list.
   - Current location tracking uses standard iOS location permissions; foreground-only, with a user-visible indicator when active.
 - Filtering & list rendering
