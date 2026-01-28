@@ -18,6 +18,7 @@ final class LibraryStore: ObservableObject {
     private let presenterQueue = OperationQueue()
     private var filePresenter: DocumentsFilePresenter?
     private var scanDebounceWorkItem: DispatchWorkItem?
+    private var currentParseToken = UUID()
     private let scanDebounceInterval: TimeInterval = 0.4
     private var cachedModificationDates: [URL: Date] = [:]
     private let starredKey = "starredRelativePaths"
@@ -117,11 +118,18 @@ final class LibraryStore: ObservableObject {
         selectedFile = file
         currentError = nil
 
-        parseQueue.async {
+        let selectedFileID = file.id
+        let parseToken = UUID()
+        currentParseToken = parseToken
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            guard self.currentParseToken == parseToken else { return }
             do {
                 let track = try GPXParser().parse(url: file.url)
                 let modDate = try? file.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
                 DispatchQueue.main.async {
+                    guard self.currentParseToken == parseToken else { return }
+                    guard self.selectedFile?.id == selectedFileID else { return }
                     self.currentTrack = track
                     self.currentError = nil
                     self.trackStats[file.url] = track.stats
@@ -133,6 +141,8 @@ final class LibraryStore: ObservableObject {
             } catch {
                 let modDate = try? file.url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
                 DispatchQueue.main.async {
+                    guard self.currentParseToken == parseToken else { return }
+                    guard self.selectedFile?.id == selectedFileID else { return }
                     self.currentTrack = nil
                     self.currentError = "Invalid GPX"
                     self.parseErrors[file.url] = "Invalid GPX"
@@ -143,6 +153,7 @@ final class LibraryStore: ObservableObject {
                 }
             }
         }
+        parseQueue.async(execute: workItem)
     }
 
     func deselect() {

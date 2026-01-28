@@ -307,7 +307,7 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     }
 
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
-        guard fullyRendered, let pendingTrackRenderID else { return }
+        guard let pendingTrackRenderID else { return }
         if lastRenderedTrackID == pendingTrackRenderID {
             self.pendingTrackRenderID = nil
             return
