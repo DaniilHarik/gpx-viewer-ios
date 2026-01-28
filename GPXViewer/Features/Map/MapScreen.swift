@@ -205,19 +205,64 @@ struct MapScreen: View {
 }
 
 private struct MapLoadingOverlayView: View {
+    @State private var pulse = false
+
     var body: some View {
         ZStack {
-            Color.black.opacity(0.15)
-                .ignoresSafeArea()
-            ProgressView("Loading track")
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.22),
+                    Color.black.opacity(0.08),
+                    Color.black.opacity(0.18)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.18))
+                    .frame(width: 160, height: 160)
+                    .blur(radius: 18)
+                    .scaleEffect(pulse ? 1.1 : 0.9)
+                    .opacity(pulse ? 0.9 : 0.6)
+
+                VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "map")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.blue)
+                        Text("Loading...")
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                    }
+
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.blue)
+
+                    Text("Longer tracks can take a moment.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.systemBackground))
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(UIColor.systemBackground).opacity(0.92))
                 )
-                .shadow(radius: 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.blue.opacity(0.15), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
+            }
         }
+        .onAppear {
+            pulse = true
+        }
+        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: pulse)
     }
 }
 
