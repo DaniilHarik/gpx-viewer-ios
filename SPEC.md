@@ -1,6 +1,6 @@
 # GPX Viewer for iOS — Product Spec
 
-Updated: 2026-01-23
+Updated: 2026-01-28
 
 ## Product Overview
 - Purpose: iOS app for browsing, filtering, and inspecting personal GPX tracks on a map that is independent from online services.
@@ -28,6 +28,7 @@ Updated: 2026-01-23
   - Map view stays in 2D; perspective/pitch is disabled.
   - Selecting a track shows a loading overlay on the Map tab (after a 250 ms delay) until the track polyline is ready; base map tiles do not need to finish loading.
   - Rapid track switching always favors the most recent selection; earlier in-flight parses are ignored.
+  - Waypoints render as tappable pins that show name/description when enabled.
 
  
 ## Functional Requirements
@@ -61,6 +62,7 @@ Updated: 2026-01-23
 - Track visualization & stats
   - GPX parsing uses a local parser; map polyline fits to bounds on load.
   - Optional distance markers render along the track when enabled; interval selectable (1/3/5/10 km).
+  - Optional waypoints render as tappable pins with name/description.
   - Track length (km) is shown in the Library list.
   - Current location tracking uses standard iOS location permissions; foreground-only, with a user-visible indicator when active.
 - Filtering & list rendering
@@ -70,7 +72,7 @@ Updated: 2026-01-23
   - Star state persists on-device and is cleared automatically when a starred file is deleted.
   - Tracks can be renamed from the Library; renaming updates the underlying file in Documents and preserves stars/selection.
 - Settings
-  - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector.
+  - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector, Waypoints toggle.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).
   - Reset App State.
   - Tile Cache size readout and Clear Tile Cache.
@@ -94,7 +96,6 @@ Updated: 2026-01-23
 
 ## Suggested Features (Backlog)
 - Track details sheet: elevation profile with min/max/total gain/loss, duration, moving time, avg/max speed; scrubbing highlights the point on the map.
-- Waypoints: render GPX waypoints as tappable pins with name/description; toggle in Settings.
 - Multi-track overlay: allow multi-select in Library to compare tracks on the map with distinct colors and a small legend.
 - Organization: tags; filters for tags; bulk rename/delete actions.
 - Share/export: share selected tracks as GPX/GeoJSON, optionally ZIP multiple files.

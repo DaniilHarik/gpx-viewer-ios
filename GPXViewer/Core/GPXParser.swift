@@ -8,13 +8,18 @@ enum GPXParserError: Error {
 
 final class GPXParser: NSObject, XMLParserDelegate {
     private var points: [TrackPoint] = []
+    private var waypoints: [GPXWaypoint] = []
     private var currentLat: Double?
     private var currentLon: Double?
     private var currentEle: Double?
     private var currentTime: Date?
+    private var currentWaypointLat: Double?
+    private var currentWaypointLon: Double?
+    private var currentWaypointName: String?
+    private var currentWaypointDescription: String?
     private var currentText: String = ""
-    private var currentElement: String?
     private var trackName: String?
+    private var elementStack: [String] = []
 
     private let dateFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
@@ -24,11 +29,17 @@ final class GPXParser: NSObject, XMLParserDelegate {
 
     func parse(url: URL) throws -> GPXTrack {
         points = []
+        waypoints = []
         trackName = nil
         currentLat = nil
         currentLon = nil
         currentEle = nil
         currentTime = nil
+        currentWaypointLat = nil
+        currentWaypointLon = nil
+        currentWaypointName = nil
+        currentWaypointDescription = nil
+        elementStack = []
 
         guard let parser = XMLParser(contentsOf: url) else {
             throw GPXParserError.invalidFile
@@ -45,18 +56,25 @@ final class GPXParser: NSObject, XMLParserDelegate {
 
         let bounds = calculateBounds(points: points)
         let stats = TrackStats.compute(points: points)
-        return GPXTrack(name: trackName, points: points, bounds: bounds, stats: stats)
+        return GPXTrack(name: trackName, points: points, waypoints: waypoints, bounds: bounds, stats: stats)
     }
 
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         currentText = ""
-        currentElement = elementName
+        elementStack.append(elementName)
 
         if elementName == "trkpt" {
             currentLat = Double(attributeDict["lat"] ?? "")
             currentLon = Double(attributeDict["lon"] ?? "")
             currentEle = nil
             currentTime = nil
+        }
+
+        if elementName == "wpt" {
+            currentWaypointLat = Double(attributeDict["lat"] ?? "")
+            currentWaypointLon = Double(attributeDict["lon"] ?? "")
+            currentWaypointName = nil
+            currentWaypointDescription = nil
         }
     }
 
@@ -66,6 +84,7 @@ final class GPXParser: NSObject, XMLParserDelegate {
 
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         let trimmed = currentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parentElement = elementStack.dropLast().last
 
         switch elementName {
         case "ele":
@@ -77,8 +96,18 @@ final class GPXParser: NSObject, XMLParserDelegate {
                 currentTime = ISO8601DateFormatter().date(from: trimmed)
             }
         case "name":
-            if trackName == nil {
-                trackName = trimmed
+            if parentElement == "wpt" {
+                currentWaypointName = trimmed.isEmpty ? nil : trimmed
+            } else if parentElement == "trk" {
+                if !trimmed.isEmpty {
+                    trackName = trimmed
+                }
+            } else if parentElement == "metadata", trackName == nil {
+                trackName = trimmed.isEmpty ? nil : trimmed
+            }
+        case "desc":
+            if parentElement == "wpt" {
+                currentWaypointDescription = trimmed.isEmpty ? nil : trimmed
             }
         case "trkpt":
             if let lat = currentLat, let lon = currentLon {
@@ -89,11 +118,26 @@ final class GPXParser: NSObject, XMLParserDelegate {
             currentLon = nil
             currentEle = nil
             currentTime = nil
+        case "wpt":
+            if let lat = currentWaypointLat, let lon = currentWaypointLon {
+                let waypoint = GPXWaypoint(
+                    coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                    name: currentWaypointName,
+                    description: currentWaypointDescription
+                )
+                waypoints.append(waypoint)
+            }
+            currentWaypointLat = nil
+            currentWaypointLon = nil
+            currentWaypointName = nil
+            currentWaypointDescription = nil
         default:
             break
         }
 
-        currentElement = nil
+        if !elementStack.isEmpty {
+            elementStack.removeLast()
+        }
     }
 
     private func calculateBounds(points: [TrackPoint]) -> MKMapRect {

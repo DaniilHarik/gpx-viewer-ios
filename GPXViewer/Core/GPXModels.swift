@@ -7,10 +7,18 @@ struct TrackPoint {
     let timestamp: Date?
 }
 
+struct GPXWaypoint: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+    let name: String?
+    let description: String?
+}
+
 struct GPXTrack: Identifiable {
     let id = UUID()
     let name: String?
     let points: [TrackPoint]
+    let waypoints: [GPXWaypoint]
     let bounds: MKMapRect
     let stats: TrackStats
 }

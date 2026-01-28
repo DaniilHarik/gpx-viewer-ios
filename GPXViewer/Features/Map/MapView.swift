@@ -8,6 +8,7 @@ struct MapView: UIViewRepresentable {
     let offlineMode: Bool
     let showsDistanceMarkers: Bool
     let distanceMarkerIntervalKm: Int
+    let showsWaypoints: Bool
     let followUser: Bool
     let showsUserLocation: Bool
     let userHeading: CLHeading?
@@ -48,6 +49,7 @@ struct MapView: UIViewRepresentable {
         updatePolyline(on: mapView, coordinator: context.coordinator)
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
+        updateWaypoints(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
 
         return mapView
@@ -61,6 +63,7 @@ struct MapView: UIViewRepresentable {
         updatePolyline(on: mapView, coordinator: context.coordinator)
         updateMeasurementOverlay(on: mapView, coordinator: context.coordinator)
         updateDistanceMarkers(on: mapView, coordinator: context.coordinator)
+        updateWaypoints(on: mapView, coordinator: context.coordinator)
         updateTracking(on: mapView)
         context.coordinator.userHeading = userHeading
         context.coordinator.updateUserHeading(on: mapView)
@@ -189,6 +192,33 @@ struct MapView: UIViewRepresentable {
         return markers
     }
 
+    private func updateWaypoints(on mapView: MKMapView, coordinator: Coordinator) {
+        guard showsWaypoints, let track = track, !track.waypoints.isEmpty else {
+            if !coordinator.waypointAnnotations.isEmpty {
+                mapView.removeAnnotations(coordinator.waypointAnnotations)
+                coordinator.waypointAnnotations.removeAll()
+            }
+            coordinator.waypointsTrackID = nil
+            coordinator.waypointsEnabled = showsWaypoints
+            return
+        }
+
+        if coordinator.waypointsTrackID == track.id,
+           coordinator.waypointsEnabled == showsWaypoints {
+            return
+        }
+
+        if !coordinator.waypointAnnotations.isEmpty {
+            mapView.removeAnnotations(coordinator.waypointAnnotations)
+        }
+
+        let annotations = track.waypoints.map { WaypointAnnotation(waypoint: $0) }
+        coordinator.waypointAnnotations = annotations
+        coordinator.waypointsTrackID = track.id
+        coordinator.waypointsEnabled = showsWaypoints
+        mapView.addAnnotations(annotations)
+    }
+
     private func updateMeasurementOverlay(on mapView: MKMapView, coordinator: Coordinator) {
         guard measurementEnabled, !measurementPoints.isEmpty else {
             if let polyline = coordinator.measurementPolyline {
@@ -267,6 +297,9 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
     var distanceMarkersTrackID: UUID?
     var distanceMarkersEnabled = false
     var distanceMarkersIntervalKm = 1
+    var waypointAnnotations: [MKAnnotation] = []
+    var waypointsTrackID: UUID?
+    var waypointsEnabled = false
     var measurementPolyline: MKPolyline?
     var measurementPointAnnotations: [MKAnnotation] = []
     var measurementPointCount = 0
@@ -289,6 +322,11 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer is UITapGestureRecognizer else { return true }
+        return !touchIsOnAnnotation(touch)
     }
 
     @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
@@ -358,6 +396,13 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
             return view
         }
 
+        if let waypoint = annotation as? WaypointAnnotation {
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: WaypointAnnotationView.reuseIdentifier) as? WaypointAnnotationView
+                ?? WaypointAnnotationView(annotation: waypoint, reuseIdentifier: WaypointAnnotationView.reuseIdentifier)
+            view.annotation = waypoint
+            return view
+        }
+
         if let marker = annotation as? DistanceMarkerAnnotation {
             let view = mapView.dequeueReusableAnnotationView(withIdentifier: DistanceMarkerAnnotationView.reuseIdentifier) as? DistanceMarkerAnnotationView
                 ?? DistanceMarkerAnnotationView(annotation: marker, reuseIdentifier: DistanceMarkerAnnotationView.reuseIdentifier)
@@ -379,6 +424,17 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
         guard let view = mapView.view(for: mapView.userLocation) as? UserLocationAnnotationView else { return }
         view.setHeading(userHeading)
     }
+
+    private func touchIsOnAnnotation(_ touch: UITouch) -> Bool {
+        var view = touch.view
+        while let current = view {
+            if current is MKAnnotationView {
+                return true
+            }
+            view = current.superview
+        }
+        return false
+    }
 }
 
 final class DistanceMarkerAnnotation: NSObject, MKAnnotation {
@@ -398,6 +454,19 @@ final class MeasurementPointAnnotation: NSObject, MKAnnotation {
 
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
+        super.init()
+    }
+}
+
+final class WaypointAnnotation: NSObject, MKAnnotation {
+    let coordinate: CLLocationCoordinate2D
+    let titleText: String?
+
+    var title: String? { nil }
+
+    init(waypoint: GPXWaypoint) {
+        coordinate = waypoint.coordinate
+        titleText = waypoint.name?.isEmpty == false ? waypoint.name : "Waypoint"
         super.init()
     }
 }
@@ -504,6 +573,48 @@ final class MeasurementPointAnnotationView: MKAnnotationView {
         layer.borderWidth = 2
         layer.borderColor = UIColor.white.cgColor
         canShowCallout = false
+    }
+}
+
+final class WaypointAnnotationView: MKMarkerAnnotationView {
+    static let reuseIdentifier = "WaypointAnnotationView"
+    private let titleLabel = UILabel()
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        configureView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configureView()
+    }
+
+    override var annotation: MKAnnotation? {
+        didSet {
+            updateTitle()
+        }
+    }
+
+    private func configureView() {
+        markerTintColor = UIColor.systemRed
+        glyphImage = UIImage(systemName: "mappin")
+        canShowCallout = true
+        titleVisibility = .hidden
+        subtitleVisibility = .hidden
+        titleLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.textColor = UIColor.label
+        titleLabel.numberOfLines = 1
+        detailCalloutAccessoryView = titleLabel
+        updateTitle()
+    }
+
+    private func updateTitle() {
+        if let waypoint = annotation as? WaypointAnnotation {
+            titleLabel.text = waypoint.titleText
+        } else {
+            titleLabel.text = nil
+        }
     }
 }
 

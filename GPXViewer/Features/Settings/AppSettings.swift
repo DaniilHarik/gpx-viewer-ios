@@ -138,6 +138,7 @@ final class AppSettings: ObservableObject {
         static let tileProviders = "tileProviders"
         static let distanceMarkersEnabled = "distanceMarkersEnabled"
         static let distanceMarkerInterval = "distanceMarkerInterval"
+        static let waypointsEnabled = "waypointsEnabled"
     }
 
     @Published var theme: ThemeSetting {
@@ -165,6 +166,10 @@ final class AppSettings: ObservableObject {
 
     @Published var distanceMarkerInterval: DistanceMarkerInterval {
         didSet { saveDistanceMarkerInterval() }
+    }
+
+    @Published var waypointsEnabled: Bool {
+        didSet { UserDefaults.standard.set(waypointsEnabled, forKey: Keys.waypointsEnabled) }
     }
 
     var colorScheme: ColorScheme? {
@@ -214,6 +219,12 @@ final class AppSettings: ObservableObject {
         } else {
             self.distanceMarkerInterval = .one
         }
+
+        if UserDefaults.standard.object(forKey: Keys.waypointsEnabled) != nil {
+            self.waypointsEnabled = UserDefaults.standard.bool(forKey: Keys.waypointsEnabled)
+        } else {
+            self.waypointsEnabled = true
+        }
     }
 
     func reset() {
@@ -225,6 +236,7 @@ final class AppSettings: ObservableObject {
         baseMapId = tileProviders.first?.id ?? BaseMapProvider.builtInProviders()[0].id
         distanceMarkersEnabled = true
         distanceMarkerInterval = .one
+        waypointsEnabled = true
     }
 
     private func saveTheme() {

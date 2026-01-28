@@ -28,8 +28,36 @@ final class GPXParserTests: XCTestCase {
 
         XCTAssertEqual(track.name, "Test Track")
         XCTAssertEqual(track.points.count, 2)
+        XCTAssertTrue(track.waypoints.isEmpty)
         XCTAssertFalse(track.bounds.isNull)
         XCTAssertGreaterThan(track.stats.distanceKm, 0)
+    }
+
+    func testParsesWaypointsAndKeepsTrackName() throws {
+        let gpx = """
+        <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <gpx version=\"1.1\" creator=\"UnitTest\">
+          <wpt lat=\"59.1000\" lon=\"24.2000\">
+            <name>Camp</name>
+            <desc>Nice spot</desc>
+          </wpt>
+          <trk>
+            <name>Main Track</name>
+            <trkseg>
+              <trkpt lat=\"59.0000\" lon=\"24.0000\"></trkpt>
+              <trkpt lat=\"59.0010\" lon=\"24.0010\"></trkpt>
+            </trkseg>
+          </trk>
+        </gpx>
+        """
+        let url = try writeTempFile(contents: gpx)
+
+        let track = try GPXParser().parse(url: url)
+
+        XCTAssertEqual(track.name, "Main Track")
+        XCTAssertEqual(track.waypoints.count, 1)
+        XCTAssertEqual(track.waypoints.first?.name, "Camp")
+        XCTAssertEqual(track.waypoints.first?.description, "Nice spot")
     }
 
     func testParseNoPointsThrows() throws {

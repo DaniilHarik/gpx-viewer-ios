@@ -24,6 +24,7 @@ struct SettingsView: View {
 
                 Section(header: Text("Map")) {
                     Toggle("Offline Mode", isOn: $settings.offlineMode)
+                    Toggle("Waypoints", isOn: $settings.waypointsEnabled)
                     Toggle("Distance Markers", isOn: $settings.distanceMarkersEnabled)
                     Picker("Marker Interval", selection: $settings.distanceMarkerInterval) {
                         ForEach(DistanceMarkerInterval.allCases) { interval in
