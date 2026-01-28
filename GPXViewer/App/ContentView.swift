@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
-    @EnvironmentObject private var libraryStore: LibraryStore
+    @EnvironmentObject private var tracksStore: TracksStore
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -12,9 +12,9 @@ struct ContentView: View {
                 }
                 .tag(0)
 
-            LibraryView(selectedTab: $selectedTab)
+            TracksView(selectedTab: $selectedTab)
                 .tabItem {
-                    Label("Library", systemImage: "list.bullet")
+                    Label("Tracks", systemImage: "point.topleft.down.curvedto.point.bottomright.up")
                 }
                 .tag(1)
 
@@ -25,7 +25,7 @@ struct ContentView: View {
                 .tag(2)
         }
         .onOpenURL { url in
-            libraryStore.importFiles([url])
+            tracksStore.importFiles([url])
             selectedTab = 1
         }
     }

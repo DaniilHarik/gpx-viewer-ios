@@ -3,7 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
-    @EnvironmentObject private var libraryStore: LibraryStore
+    @EnvironmentObject private var tracksStore: TracksStore
 
     @State private var showResetConfirm = false
     @State private var showCacheConfirm = false
@@ -70,7 +70,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Section(header: Text("Library")) {
+                Section(header: Text("Tracks")) {
                     Button("Reset App State", role: .destructive) {
                         showResetConfirm = true
                     }
@@ -91,8 +91,8 @@ struct SettingsView: View {
             .confirmationDialog("Reset app state?", isPresented: $showResetConfirm) {
                 Button("Reset", role: .destructive) {
                     settings.reset()
-                    libraryStore.resetStarred()
-                    libraryStore.scanDocuments()
+                    tracksStore.resetStarred()
+                    tracksStore.scanDocuments()
                 }
                 Button("Cancel", role: .cancel) {}
             }

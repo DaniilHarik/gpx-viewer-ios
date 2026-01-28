@@ -1,6 +1,6 @@
 import Foundation
 
-struct LibraryRowFormatter {
+struct TracksRowFormatter {
     static func subtitle(for file: GPXFile) -> String? {
         if let prefix = datePrefix(from: file.displayName) {
             return prefix

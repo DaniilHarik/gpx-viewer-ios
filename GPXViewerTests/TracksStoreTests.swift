@@ -1,9 +1,9 @@
 import XCTest
 @testable import GPXViewer
 
-final class LibraryStoreTests: XCTestCase {
+final class TracksStoreTests: XCTestCase {
     func testDateFromFilenameParsesDashedPrefix() {
-        let date = LibraryStore.dateFromFilename("2024-03-05 Morning Run")
+        let date = TracksStore.dateFromFilename("2024-03-05 Morning Run")
         let components = Calendar.current.dateComponents([.year, .month, .day], from: date ?? Date.distantPast)
         XCTAssertEqual(components.year, 2024)
         XCTAssertEqual(components.month, 3)
@@ -11,7 +11,7 @@ final class LibraryStoreTests: XCTestCase {
     }
 
     func testDateFromFilenameParsesCompactPrefix() {
-        let date = LibraryStore.dateFromFilename("20240305 Morning Run")
+        let date = TracksStore.dateFromFilename("20240305 Morning Run")
         let components = Calendar.current.dateComponents([.year, .month, .day], from: date ?? Date.distantPast)
         XCTAssertEqual(components.year, 2024)
         XCTAssertEqual(components.month, 3)
@@ -19,7 +19,7 @@ final class LibraryStoreTests: XCTestCase {
     }
 
     func testDateFromFilenameReturnsNilWhenInvalid() {
-        XCTAssertNil(LibraryStore.dateFromFilename("2024-13-05 Morning Run"))
+        XCTAssertNil(TracksStore.dateFromFilename("2024-13-05 Morning Run"))
     }
 
     func testUniqueURLAddsNumericSuffixForCollisions() throws {
@@ -32,7 +32,7 @@ final class LibraryStoreTests: XCTestCase {
         FileManager.default.createFile(atPath: baseURL.path, contents: Data())
         FileManager.default.createFile(atPath: first.path, contents: Data())
 
-        let unique = LibraryStore.uniqueURL(for: baseURL)
+        let unique = TracksStore.uniqueURL(for: baseURL)
 
         XCTAssertEqual(unique.lastPathComponent, "track-2.gpx")
     }
@@ -44,13 +44,13 @@ final class LibraryStoreTests: XCTestCase {
 
         let baseURL = tempDir.appendingPathComponent("track.gpx")
 
-        let unique = LibraryStore.uniqueURL(for: baseURL)
+        let unique = TracksStore.uniqueURL(for: baseURL)
 
         XCTAssertEqual(unique, baseURL)
     }
 
     func testRenameFileRejectsEmptyName() {
-        let store = LibraryStore()
+        let store = TracksStore()
         let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let fileURL = docsURL.appendingPathComponent("UnitTest-Empty.gpx")
         let file = GPXFile(
@@ -84,8 +84,8 @@ final class LibraryStoreTests: XCTestCase {
         }
         FileManager.default.createFile(atPath: originalURL.path, contents: Data("test".utf8))
 
-        let store = LibraryStore()
-        waitForLibrary(store, toContain: originalURL)
+        let store = TracksStore()
+        waitForTracks(store, toContain: originalURL)
 
         let file = GPXFile(
             id: originalURL,
@@ -116,7 +116,7 @@ final class LibraryStoreTests: XCTestCase {
         wait(for: [expectation], timeout: 4)
     }
 
-    private func waitForLibrary(_ store: LibraryStore, toContain url: URL, timeout: TimeInterval = 2.0) {
+    private func waitForTracks(_ store: TracksStore, toContain url: URL, timeout: TimeInterval = 2.0) {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if store.files.contains(where: { $0.url == url }) {

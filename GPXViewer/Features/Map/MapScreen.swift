@@ -3,7 +3,7 @@ import MapKit
 
 struct MapScreen: View {
     @EnvironmentObject private var settings: AppSettings
-    @EnvironmentObject private var libraryStore: LibraryStore
+    @EnvironmentObject private var tracksStore: TracksStore
     @EnvironmentObject private var locationManager: LocationManager
     @EnvironmentObject private var bannerCenter: BannerCenter
 
@@ -20,7 +20,7 @@ struct MapScreen: View {
     var body: some View {
         ZStack(alignment: .top) {
             MapView(
-                track: libraryStore.currentTrack,
+                track: tracksStore.currentTrack,
                 provider: settings.baseMap,
                 offlineMode: settings.offlineMode,
                 showsDistanceMarkers: settings.distanceMarkersEnabled,
@@ -53,7 +53,7 @@ struct MapScreen: View {
                 VStack {
                     Spacer()
                     AttributionView(text: attribution)
-                        .padding(.bottom, libraryStore.currentTrack == nil ? 12 : 96)
+                        .padding(.bottom, tracksStore.currentTrack == nil ? 12 : 96)
                         .padding(.horizontal, 12)
                 }
             }
@@ -99,20 +99,20 @@ struct MapScreen: View {
             }
         }
         .onAppear {
-            if let trackID = libraryStore.currentTrack?.id, renderedTrackID != trackID {
+            if let trackID = tracksStore.currentTrack?.id, renderedTrackID != trackID {
                 beginLoading(for: trackID)
             }
         }
-        .onChange(of: libraryStore.selectedFile?.id) { _, newValue in
+        .onChange(of: tracksStore.selectedFile?.id) { _, newValue in
             if newValue == nil {
                 stopLoading()
-            } else if libraryStore.currentTrack == nil {
+            } else if tracksStore.currentTrack == nil {
                 beginLoading(for: nil)
             }
         }
-        .onChange(of: libraryStore.currentTrack?.id) { _, newValue in
+        .onChange(of: tracksStore.currentTrack?.id) { _, newValue in
             guard let trackID = newValue else {
-                if libraryStore.currentError != nil || libraryStore.selectedFile == nil {
+                if tracksStore.currentError != nil || tracksStore.selectedFile == nil {
                     stopLoading()
                 }
                 return
@@ -123,7 +123,7 @@ struct MapScreen: View {
                 beginLoading(for: trackID)
             }
         }
-        .onChange(of: libraryStore.currentError) { _, newValue in
+        .onChange(of: tracksStore.currentError) { _, newValue in
             if newValue != nil {
                 stopLoading()
             }

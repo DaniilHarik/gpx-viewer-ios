@@ -1,27 +1,27 @@
 import XCTest
 @testable import GPXViewer
 
-final class LibraryRowFormatterTests: XCTestCase {
+final class TracksRowFormatterTests: XCTestCase {
     func testDatePrefixExtractsValidPrefix() {
-        XCTAssertEqual(LibraryRowFormatter.datePrefix(from: "2024-03-05 Morning Run"), "2024-03-05")
+        XCTAssertEqual(TracksRowFormatter.datePrefix(from: "2024-03-05 Morning Run"), "2024-03-05")
     }
 
     func testDatePrefixRejectsInvalidPrefix() {
-        XCTAssertNil(LibraryRowFormatter.datePrefix(from: "2024-13-05 Morning Run"))
+        XCTAssertNil(TracksRowFormatter.datePrefix(from: "2024-13-05 Morning Run"))
     }
 
     func testDisplayTitleStripsPrefixAndSeparators() {
-        XCTAssertEqual(LibraryRowFormatter.displayTitle(for: "2024-03-05 - Morning Run"), "Morning Run")
-        XCTAssertEqual(LibraryRowFormatter.displayTitle(for: "2024-03-05_Morning Run"), "Morning Run")
+        XCTAssertEqual(TracksRowFormatter.displayTitle(for: "2024-03-05 - Morning Run"), "Morning Run")
+        XCTAssertEqual(TracksRowFormatter.displayTitle(for: "2024-03-05_Morning Run"), "Morning Run")
     }
 
     func testDisplayTitleFallsBackWhenOnlyPrefix() {
-        XCTAssertEqual(LibraryRowFormatter.displayTitle(for: "2024-03-05"), "2024-03-05")
+        XCTAssertEqual(TracksRowFormatter.displayTitle(for: "2024-03-05"), "2024-03-05")
     }
 
     func testSubtitleUsesRelativePathWhenNoPrefix() {
         let file = makeFile(displayName: "Morning Run", relativePath: "Trips/Morning Run.gpx")
-        XCTAssertEqual(LibraryRowFormatter.subtitle(for: file), "Trips/Morning Run.gpx")
+        XCTAssertEqual(TracksRowFormatter.subtitle(for: file), "Trips/Morning Run.gpx")
     }
 
     private func makeFile(displayName: String, relativePath: String) -> GPXFile {

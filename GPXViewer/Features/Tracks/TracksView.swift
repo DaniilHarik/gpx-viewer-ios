@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct LibraryView: View {
-    @EnvironmentObject private var libraryStore: LibraryStore
+struct TracksView: View {
+    @EnvironmentObject private var tracksStore: TracksStore
     @Binding var selectedTab: Int
 
     @State private var searchText = ""
@@ -16,24 +16,24 @@ struct LibraryView: View {
     var body: some View {
         NavigationStack {
             List {
-                if libraryStore.isScanning {
+                if tracksStore.isScanning {
                     HStack {
                         ProgressView()
-                        Text("Scanning library...")
+                        Text("Scanning tracks...")
                     }
                 }
 
                 if !starredFiles.isEmpty {
                     Section(header: Text("Starred")) {
                         ForEach(starredFiles) { file in
-                            LibraryRow(
+                            TracksRow(
                                 file: file,
-                                isSelected: libraryStore.selectedFile?.id == file.id,
+                                isSelected: tracksStore.selectedFile?.id == file.id,
                                 isStarred: true,
-                                stats: libraryStore.trackStats[file.url],
-                                error: libraryStore.parseErrors[file.url],
+                                stats: tracksStore.trackStats[file.url],
+                                error: tracksStore.parseErrors[file.url],
                                 onSelect: { toggleSelection(for: file) },
-                                onToggleStar: { libraryStore.toggleStar(for: file) },
+                                onToggleStar: { tracksStore.toggleStar(for: file) },
                                 onRename: { beginRename(for: file) }
                             )
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
@@ -49,14 +49,14 @@ struct LibraryView: View {
                 ForEach(sectionedFiles.keys.sorted(by: >), id: \.self) { year in
                     Section(header: Text(sectionTitle(for: year))) {
                         ForEach(sectionedFiles[year] ?? []) { file in
-                            LibraryRow(
+                            TracksRow(
                                 file: file,
-                                isSelected: libraryStore.selectedFile?.id == file.id,
-                                isStarred: libraryStore.isStarred(file),
-                                stats: libraryStore.trackStats[file.url],
-                                error: libraryStore.parseErrors[file.url],
+                                isSelected: tracksStore.selectedFile?.id == file.id,
+                                isStarred: tracksStore.isStarred(file),
+                                stats: tracksStore.trackStats[file.url],
+                                error: tracksStore.parseErrors[file.url],
                                 onSelect: { toggleSelection(for: file) },
-                                onToggleStar: { libraryStore.toggleStar(for: file) },
+                                onToggleStar: { tracksStore.toggleStar(for: file) },
                                 onRename: { beginRename(for: file) }
                             )
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
@@ -70,7 +70,7 @@ struct LibraryView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("Library")
+            .navigationTitle("Tracks")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingImporter = true }) {
@@ -84,12 +84,12 @@ struct LibraryView: View {
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search files")
             .sheet(isPresented: $showingImporter) {
                 DocumentPicker { urls in
-                    libraryStore.importFiles(urls)
+                    tracksStore.importFiles(urls)
                 }
             }
             .alert("Delete Track", isPresented: $showingDeleteConfirm) {
                 Button("Delete", role: .destructive) {
-                    libraryStore.deleteFiles(pendingDeletion)
+                    tracksStore.deleteFiles(pendingDeletion)
                     pendingDeletion = []
                 }
                 Button("Cancel", role: .cancel) {
@@ -97,9 +97,9 @@ struct LibraryView: View {
                 }
             } message: {
                 if pendingDeletion.count == 1, let name = pendingDeletion.first?.displayName {
-                    Text("This will permanently delete “\(name)” from your library.")
+                    Text("This will permanently delete “\(name)” from your tracks.")
                 } else {
-                    Text("This will permanently delete the selected tracks from your library.")
+                    Text("This will permanently delete the selected tracks from your tracks.")
                 }
             }
             .alert("Rename Track", isPresented: renamePromptBinding) {
@@ -127,19 +127,19 @@ struct LibraryView: View {
     }
 
     private var filteredFiles: [GPXFile] {
-        guard !searchText.isEmpty else { return libraryStore.files }
+        guard !searchText.isEmpty else { return tracksStore.files }
         let term = searchText.lowercased()
-        return libraryStore.files.filter {
+        return tracksStore.files.filter {
             $0.displayName.lowercased().contains(term) || $0.relativePath.lowercased().contains(term)
         }
     }
 
     private var starredFiles: [GPXFile] {
-        filteredFiles.filter { libraryStore.isStarred($0) }
+        filteredFiles.filter { tracksStore.isStarred($0) }
     }
 
     private var unstarredFiles: [GPXFile] {
-        filteredFiles.filter { !libraryStore.isStarred($0) }
+        filteredFiles.filter { !tracksStore.isStarred($0) }
     }
 
     private var sectionedFiles: [Int: [GPXFile]] {
@@ -152,10 +152,10 @@ struct LibraryView: View {
     }
 
     private func toggleSelection(for file: GPXFile) {
-        if libraryStore.selectedFile?.id == file.id {
-            libraryStore.deselect()
+        if tracksStore.selectedFile?.id == file.id {
+            tracksStore.deselect()
         } else {
-            libraryStore.select(file)
+            tracksStore.select(file)
             selectedTab = 0
         }
     }
@@ -193,7 +193,7 @@ struct LibraryView: View {
         let proposedName = renameText
         renamingFile = nil
 
-        libraryStore.renameFile(file, to: proposedName) { result in
+        tracksStore.renameFile(file, to: proposedName) { result in
             if case .failure(let error) = result {
                 renameErrorMessage = error.localizedDescription
                 showingRenameError = true
@@ -203,16 +203,16 @@ struct LibraryView: View {
 
     @ViewBuilder
     private func starAction(for file: GPXFile) -> some View {
-        if libraryStore.isStarred(file) {
+        if tracksStore.isStarred(file) {
             Button {
-                libraryStore.toggleStar(for: file)
+                tracksStore.toggleStar(for: file)
             } label: {
                 Label("Unstar", systemImage: "star.slash")
             }
             .tint(.gray)
         } else {
             Button {
-                libraryStore.toggleStar(for: file)
+                tracksStore.toggleStar(for: file)
             } label: {
                 Label("Star", systemImage: "star.fill")
             }
@@ -221,7 +221,7 @@ struct LibraryView: View {
     }
 }
 
-private struct LibraryRow: View {
+private struct TracksRow: View {
     let file: GPXFile
     let isSelected: Bool
     let isStarred: Bool
@@ -285,10 +285,10 @@ private struct LibraryRow: View {
     }
 
     private var subtitleText: String? {
-        LibraryRowFormatter.subtitle(for: file)
+        TracksRowFormatter.subtitle(for: file)
     }
 
     private var displayTitle: String {
-        LibraryRowFormatter.displayTitle(for: file.displayName)
+        TracksRowFormatter.displayTitle(for: file.displayName)
     }
 }

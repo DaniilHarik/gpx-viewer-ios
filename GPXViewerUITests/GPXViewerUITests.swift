@@ -11,9 +11,9 @@ final class GPXViewerUITests: XCTestCase {
         app.launch()
 
         let tabBar = app.tabBars.firstMatch
-        XCTAssertTrue(tabBar.buttons["Library"].waitForExistence(timeout: 2))
-        tabBar.buttons["Library"].tap()
-        XCTAssertTrue(app.navigationBars["Library"].waitForExistence(timeout: 2))
+        XCTAssertTrue(tabBar.buttons["Tracks"].waitForExistence(timeout: 2))
+        tabBar.buttons["Tracks"].tap()
+        XCTAssertTrue(app.navigationBars["Tracks"].waitForExistence(timeout: 2))
 
         tabBar.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 2))
@@ -42,12 +42,12 @@ final class GPXViewerUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Settings"].exists)
     }
 
-    func testRenameTrackFromLibrary() {
+    func testRenameTrackFromTracks() {
         let app = XCUIApplication()
         app.launchArguments.append("-ui-testing")
         app.launch()
 
-        app.tabBars.buttons["Library"].tap()
+        app.tabBars.buttons["Tracks"].tap()
         let originalName = "UI Test Track"
         let renamedName = "UI Test Track Renamed"
 

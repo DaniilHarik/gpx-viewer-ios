@@ -1,6 +1,6 @@
 import Foundation
 
-final class LibraryStore: ObservableObject {
+final class TracksStore: ObservableObject {
     @Published private(set) var files: [GPXFile] = []
     @Published var selectedFile: GPXFile?
     @Published var currentTrack: GPXTrack?
@@ -12,9 +12,9 @@ final class LibraryStore: ObservableObject {
         didSet { saveStarredFiles() }
     }
 
-    private let scanQueue = DispatchQueue(label: "LibraryStore.scan", qos: .userInitiated)
-    private let parseQueue = DispatchQueue(label: "LibraryStore.parse", qos: .userInitiated, attributes: .concurrent)
-    private let validationQueue = DispatchQueue(label: "LibraryStore.validation", qos: .utility)
+    private let scanQueue = DispatchQueue(label: "TracksStore.scan", qos: .userInitiated)
+    private let parseQueue = DispatchQueue(label: "TracksStore.parse", qos: .userInitiated, attributes: .concurrent)
+    private let validationQueue = DispatchQueue(label: "TracksStore.validation", qos: .utility)
     private let presenterQueue = OperationQueue()
     private var filePresenter: DocumentsFilePresenter?
     private var scanDebounceWorkItem: DispatchWorkItem?
@@ -36,7 +36,7 @@ final class LibraryStore: ObservableObject {
             case .invalidCharacters:
                 return "Names can’t include “/” or “:”."
             case .fileMissing:
-                return "That file is no longer in your library."
+                return "That file is no longer in your track list."
             case .moveFailed:
                 return "Couldn’t rename this track. Try a different name."
             }

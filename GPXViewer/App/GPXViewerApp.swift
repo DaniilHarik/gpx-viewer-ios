@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct GPXViewerApp: App {
     @StateObject private var settings = AppSettings()
-    @StateObject private var libraryStore = LibraryStore()
+    @StateObject private var tracksStore = TracksStore()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var bannerCenter = BannerCenter.shared
 
@@ -11,7 +11,7 @@ struct GPXViewerApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(settings)
-                .environmentObject(libraryStore)
+                .environmentObject(tracksStore)
                 .environmentObject(locationManager)
                 .environmentObject(bannerCenter)
                 .preferredColorScheme(settings.colorScheme)
