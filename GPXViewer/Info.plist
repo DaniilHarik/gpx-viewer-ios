@@ -55,6 +55,8 @@
       <string>Viewer</string>
     </dict>
   </array>
+  <key>LSSupportsOpeningDocumentsInPlace</key>
+  <false/>
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>Show your current location on the map.</string>
   <key>UILaunchScreen</key>
