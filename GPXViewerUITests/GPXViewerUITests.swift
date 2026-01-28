@@ -42,6 +42,38 @@ final class GPXViewerUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Settings"].exists)
     }
 
+    func testRenameTrackFromLibrary() {
+        let app = XCUIApplication()
+        app.launchArguments.append("-ui-testing")
+        app.launch()
+
+        app.tabBars.buttons["Library"].tap()
+        let originalName = "UI Test Track"
+        let renamedName = "UI Test Track Renamed"
+
+        let originalCell = app.staticTexts[originalName].firstMatch
+        XCTAssertTrue(originalCell.waitForExistence(timeout: 4))
+        originalCell.press(forDuration: 1.0)
+
+        let renameButton = app.buttons["Rename"].firstMatch
+        XCTAssertTrue(renameButton.waitForExistence(timeout: 2))
+        renameButton.tap()
+
+        let alert = app.alerts["Rename Track"].firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 2))
+
+        let textField = alert.textFields["Track name"].firstMatch
+        XCTAssertTrue(textField.exists)
+        textField.tap()
+        textField.clearText()
+        textField.typeText(renamedName)
+        alert.buttons["Rename"].tap()
+
+        let renamedCell = app.staticTexts[renamedName].firstMatch
+        XCTAssertTrue(renamedCell.waitForExistence(timeout: 4))
+        XCTAssertFalse(app.staticTexts[originalName].exists)
+    }
+
     private func waitForElement(with label: String, in app: XCUIApplication, timeout: TimeInterval = 1.5, scrolls: Int = 5) -> XCUIElement? {
         let candidates: [() -> XCUIElement] = [
             { app.buttons[label].firstMatch },
@@ -59,5 +91,14 @@ final class GPXViewerUITests: XCTestCase {
             app.swipeUp()
         }
         return nil
+    }
+}
+
+private extension XCUIElement {
+    func clearText() {
+        guard let stringValue = value as? String else { return }
+        tap()
+        let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: stringValue.count)
+        typeText(deleteString)
     }
 }

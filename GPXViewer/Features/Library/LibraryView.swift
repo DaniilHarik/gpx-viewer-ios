@@ -8,6 +8,10 @@ struct LibraryView: View {
     @State private var showingImporter = false
     @State private var pendingDeletion: [GPXFile] = []
     @State private var showingDeleteConfirm = false
+    @State private var renamingFile: GPXFile?
+    @State private var renameText = ""
+    @State private var renameErrorMessage: String?
+    @State private var showingRenameError = false
 
     var body: some View {
         NavigationStack {
@@ -29,7 +33,8 @@ struct LibraryView: View {
                                 stats: libraryStore.trackStats[file.url],
                                 error: libraryStore.parseErrors[file.url],
                                 onSelect: { toggleSelection(for: file) },
-                                onToggleStar: { libraryStore.toggleStar(for: file) }
+                                onToggleStar: { libraryStore.toggleStar(for: file) },
+                                onRename: { beginRename(for: file) }
                             )
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 starAction(for: file)
@@ -51,7 +56,8 @@ struct LibraryView: View {
                                 stats: libraryStore.trackStats[file.url],
                                 error: libraryStore.parseErrors[file.url],
                                 onSelect: { toggleSelection(for: file) },
-                                onToggleStar: { libraryStore.toggleStar(for: file) }
+                                onToggleStar: { libraryStore.toggleStar(for: file) },
+                                onRename: { beginRename(for: file) }
                             )
                             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 starAction(for: file)
@@ -94,6 +100,27 @@ struct LibraryView: View {
                     Text("This will permanently delete “\(name)” from your library.")
                 } else {
                     Text("This will permanently delete the selected tracks from your library.")
+                }
+            }
+            .alert("Rename Track", isPresented: renamePromptBinding) {
+                TextField("Track name", text: $renameText)
+                    .textInputAutocapitalization(.words)
+                Button("Rename") {
+                    commitRename()
+                }
+                Button("Cancel", role: .cancel) {
+                    renamingFile = nil
+                }
+            } message: {
+                if let file = renamingFile {
+                    Text("Enter a new name for “\(file.displayName)”.")
+                }
+            }
+            .alert("Rename Failed", isPresented: $showingRenameError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                if let renameErrorMessage {
+                    Text(renameErrorMessage)
                 }
             }
         }
@@ -143,6 +170,37 @@ struct LibraryView: View {
         showingDeleteConfirm = true
     }
 
+    private var renamePromptBinding: Binding<Bool> {
+        Binding(
+            get: { renamingFile != nil },
+            set: { newValue in
+                if !newValue {
+                    renamingFile = nil
+                }
+            }
+        )
+    }
+
+    private func beginRename(for file: GPXFile) {
+        renamingFile = file
+        renameText = file.displayName
+        renameErrorMessage = nil
+        showingRenameError = false
+    }
+
+    private func commitRename() {
+        guard let file = renamingFile else { return }
+        let proposedName = renameText
+        renamingFile = nil
+
+        libraryStore.renameFile(file, to: proposedName) { result in
+            if case .failure(let error) = result {
+                renameErrorMessage = error.localizedDescription
+                showingRenameError = true
+            }
+        }
+    }
+
     @ViewBuilder
     private func starAction(for file: GPXFile) -> some View {
         if libraryStore.isStarred(file) {
@@ -171,6 +229,7 @@ private struct LibraryRow: View {
     let error: String?
     let onSelect: () -> Void
     let onToggleStar: () -> Void
+    let onRename: () -> Void
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -218,6 +277,9 @@ private struct LibraryRow: View {
         .contextMenu {
             Button(action: onToggleStar) {
                 Label(isStarred ? "Unstar" : "Star", systemImage: isStarred ? "star.slash" : "star.fill")
+            }
+            Button(action: onRename) {
+                Label("Rename", systemImage: "pencil")
             }
         }
     }

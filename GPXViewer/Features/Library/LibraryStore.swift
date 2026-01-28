@@ -19,10 +19,44 @@ final class LibraryStore: ObservableObject {
     private var filePresenter: DocumentsFilePresenter?
     private let starredKey = "starredRelativePaths"
 
+    enum RenameError: LocalizedError, Equatable {
+        case emptyName
+        case invalidCharacters
+        case fileMissing
+        case moveFailed(Error)
+
+        var errorDescription: String? {
+            switch self {
+            case .emptyName:
+                return "Enter a name to continue."
+            case .invalidCharacters:
+                return "Names can’t include “/” or “:”."
+            case .fileMissing:
+                return "That file is no longer in your library."
+            case .moveFailed:
+                return "Couldn’t rename this track. Try a different name."
+            }
+        }
+        
+        static func == (lhs: RenameError, rhs: RenameError) -> Bool {
+            switch (lhs, rhs) {
+            case (.emptyName, .emptyName),
+                 (.invalidCharacters, .invalidCharacters),
+                 (.fileMissing, .fileMissing):
+                return true
+            case (.moveFailed, .moveFailed):
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
     init() {
         presenterQueue.maxConcurrentOperationCount = 1
         loadStarredFiles()
         startFilePresenter()
+        seedUITestDataIfNeeded()
         scanDocuments()
     }
 
@@ -169,6 +203,97 @@ final class LibraryStore: ObservableObject {
         starredRelativePaths = []
     }
 
+    func renameFile(_ file: GPXFile, to proposedName: String, completion: @escaping (Result<GPXFile, RenameError>) -> Void) {
+        let trimmed = proposedName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            completion(.failure(.emptyName))
+            return
+        }
+        if trimmed.contains("/") || trimmed.contains(":") {
+            completion(.failure(.invalidCharacters))
+            return
+        }
+
+        let normalizedName: String
+        if trimmed.lowercased().hasSuffix(".gpx") {
+            normalizedName = String(trimmed.dropLast(4))
+        } else {
+            normalizedName = trimmed
+        }
+
+        guard !normalizedName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            completion(.failure(.emptyName))
+            return
+        }
+        if normalizedName.caseInsensitiveCompare(file.displayName) == .orderedSame {
+            completion(.success(file))
+            return
+        }
+
+        let docsURL = documentsDirectory()
+        let destination = file.url.deletingLastPathComponent()
+            .appendingPathComponent(normalizedName)
+            .appendingPathExtension("gpx")
+
+        scanQueue.async {
+            guard FileManager.default.fileExists(atPath: file.url.path) else {
+                DispatchQueue.main.async {
+                    completion(.failure(.fileMissing))
+                }
+                return
+            }
+
+            let uniqueDestination = Self.uniqueURL(for: destination)
+            do {
+                try FileManager.default.moveItem(at: file.url, to: uniqueDestination)
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(.moveFailed(error)))
+                }
+                return
+            }
+
+            let displayName = uniqueDestination.deletingPathExtension().lastPathComponent
+            let relativePath = self.relativePath(for: uniqueDestination, docsURL: docsURL)
+            let sortDate = Self.dateFromFilename(displayName) ?? (try? uniqueDestination.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
+            let year = sortDate.flatMap { Calendar.current.dateComponents([.year], from: $0).year }
+            let renamedFile = GPXFile(id: uniqueDestination, url: uniqueDestination, displayName: displayName, relativePath: relativePath, sortDate: sortDate, year: year)
+
+            DispatchQueue.main.async {
+                let wasStarred = self.starredRelativePaths.contains(file.relativePath)
+                if wasStarred {
+                    self.starredRelativePaths.remove(file.relativePath)
+                    self.starredRelativePaths.insert(relativePath)
+                }
+
+                if let index = self.files.firstIndex(where: { $0.url == file.url }) {
+                    self.files[index] = renamedFile
+                    self.files.sort { lhs, rhs in
+                        let left = lhs.sortDate ?? .distantPast
+                        let right = rhs.sortDate ?? .distantPast
+                        if left == right {
+                            return lhs.displayName > rhs.displayName
+                        }
+                        return left > right
+                    }
+                }
+
+                if let stats = self.trackStats.removeValue(forKey: file.url) {
+                    self.trackStats[renamedFile.url] = stats
+                }
+                if let error = self.parseErrors.removeValue(forKey: file.url) {
+                    self.parseErrors[renamedFile.url] = error
+                }
+
+                if self.selectedFile?.url == file.url {
+                    self.selectedFile = renamedFile
+                }
+
+                completion(.success(renamedFile))
+            }
+        }
+    }
+
     private func validateFiles(_ files: [GPXFile]) {
         validationQueue.async {
             var errors: [URL: String] = [:]
@@ -273,6 +398,33 @@ final class LibraryStore: ObservableObject {
         let valid = Set(files.map { $0.relativePath })
         if !starredRelativePaths.isSubset(of: valid) {
             starredRelativePaths = starredRelativePaths.intersection(valid)
+        }
+    }
+
+    private func seedUITestDataIfNeeded() {
+        guard ProcessInfo.processInfo.arguments.contains("-ui-testing") else { return }
+        let docsURL = documentsDirectory()
+        let originalURL = docsURL.appendingPathComponent("UI Test Track.gpx")
+        let renamedURL = docsURL.appendingPathComponent("UI Test Track Renamed.gpx")
+
+        try? FileManager.default.removeItem(at: originalURL)
+        try? FileManager.default.removeItem(at: renamedURL)
+
+        let gpx = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" creator="GPXViewer UITests">
+          <trk>
+            <name>UI Test Track</name>
+            <trkseg>
+              <trkpt lat="37.33182" lon="-122.03118"><ele>10</ele></trkpt>
+              <trkpt lat="37.33200" lon="-122.03000"><ele>12</ele></trkpt>
+            </trkseg>
+          </trk>
+        </gpx>
+        """
+
+        if let data = gpx.data(using: .utf8) {
+            try? data.write(to: originalURL, options: .atomic)
         }
     }
 }

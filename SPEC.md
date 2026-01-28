@@ -63,6 +63,7 @@ Updated: 2026-01-23
   - Search filters by filename or relative path (case-insensitive).
   - Library supports starring tracks; starred tracks appear in a separate top group and are removed from year sections.
   - Star state persists on-device and is cleared automatically when a starred file is deleted.
+  - Tracks can be renamed from the Library; renaming updates the underlying file in Documents and preserves stars/selection.
 - Settings
   - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).

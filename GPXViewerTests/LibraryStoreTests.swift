@@ -48,4 +48,81 @@ final class LibraryStoreTests: XCTestCase {
 
         XCTAssertEqual(unique, baseURL)
     }
+
+    func testRenameFileRejectsEmptyName() {
+        let store = LibraryStore()
+        let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = docsURL.appendingPathComponent("UnitTest-Empty.gpx")
+        let file = GPXFile(
+            id: fileURL,
+            url: fileURL,
+            displayName: "UnitTest-Empty",
+            relativePath: "UnitTest-Empty.gpx",
+            sortDate: nil,
+            year: nil
+        )
+
+        let expectation = expectation(description: "Rename completion")
+        store.renameFile(file, to: "   ") { result in
+            if case .failure(let error) = result {
+                XCTAssertEqual(error, .emptyName)
+            } else {
+                XCTFail("Expected rename to fail for empty name")
+            }
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 2)
+    }
+
+    func testRenameFileMovesFileAndPreservesStar() throws {
+        let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let originalURL = docsURL.appendingPathComponent("UnitTest-Rename-Original.gpx")
+        let renamedURL = docsURL.appendingPathComponent("UnitTest-Rename-New.gpx")
+        defer {
+            try? FileManager.default.removeItem(at: originalURL)
+            try? FileManager.default.removeItem(at: renamedURL)
+        }
+        FileManager.default.createFile(atPath: originalURL.path, contents: Data("test".utf8))
+
+        let store = LibraryStore()
+        waitForLibrary(store, toContain: originalURL)
+
+        let file = GPXFile(
+            id: originalURL,
+            url: originalURL,
+            displayName: "UnitTest-Rename-Original",
+            relativePath: "UnitTest-Rename-Original.gpx",
+            sortDate: nil,
+            year: nil
+        )
+
+        store.toggleStar(for: file)
+        XCTAssertTrue(store.starredRelativePaths.contains(file.relativePath))
+
+        let expectation = expectation(description: "Rename completion")
+        store.renameFile(file, to: "UnitTest-Rename-New") { result in
+            switch result {
+            case .success(let renamedFile):
+                XCTAssertEqual(renamedFile.displayName, "UnitTest-Rename-New")
+                XCTAssertFalse(FileManager.default.fileExists(atPath: originalURL.path))
+                XCTAssertTrue(FileManager.default.fileExists(atPath: renamedFile.url.path))
+                XCTAssertTrue(store.starredRelativePaths.contains("UnitTest-Rename-New.gpx"))
+                XCTAssertFalse(store.starredRelativePaths.contains("UnitTest-Rename-Original.gpx"))
+            case .failure(let error):
+                XCTFail("Rename failed with error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 4)
+    }
+
+    private func waitForLibrary(_ store: LibraryStore, toContain url: URL, timeout: TimeInterval = 2.0) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if store.files.contains(where: { $0.url == url }) {
+                return
+            }
+            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        }
+    }
 }
