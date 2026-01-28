@@ -101,7 +101,7 @@ struct MapScreen: View {
                 loadingTrackID = trackID
             }
         }
-        .onChange(of: libraryStore.selectedFile?.id) { newValue in
+        .onChange(of: libraryStore.selectedFile?.id) { _, newValue in
             if newValue == nil {
                 stopLoading()
             } else if libraryStore.currentTrack == nil {
@@ -109,7 +109,7 @@ struct MapScreen: View {
                 loadingTrackID = nil
             }
         }
-        .onChange(of: libraryStore.currentTrack?.id) { newValue in
+        .onChange(of: libraryStore.currentTrack?.id) { _, newValue in
             guard let trackID = newValue else {
                 if libraryStore.currentError != nil || libraryStore.selectedFile == nil {
                     stopLoading()
@@ -121,12 +121,12 @@ struct MapScreen: View {
                 loadingTrackID = trackID
             }
         }
-        .onChange(of: libraryStore.currentError) { newValue in
+        .onChange(of: libraryStore.currentError) { _, newValue in
             if newValue != nil {
                 stopLoading()
             }
         }
-        .onChange(of: locationManager.isAuthorized) { newValue in
+        .onChange(of: locationManager.isAuthorized) { _, newValue in
             if !newValue {
                 followUser = false
                 showUserLocation = false
