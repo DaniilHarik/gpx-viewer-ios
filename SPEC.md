@@ -79,6 +79,7 @@ Updated: 2026-01-28
   - Points can be added, edited, starred, and deleted.
   - Starred points appear in a top group above the main points list.
   - Selecting a point shows a marker on the Map tab and centers the map on it.
+  - Long-pressing a point offers a Copy Coordinates action that copies "lat lon" for pasting into maps.
 - Settings
   - Theme (Light/Dark), Offline Mode, Default Base Map, Tile Providers management, Distance Markers toggle with 1/3/5/10 km interval selector, Waypoints toggle.
   - Tile Providers can be added/edited/removed with name, URL template, max zoom, TMS toggle, and file type (png/jpg).

@@ -1,5 +1,6 @@
 import CoreLocation
 import SwiftUI
+import UIKit
 
 struct PointsView: View {
     @EnvironmentObject private var pointsStore: PointsStore
@@ -246,6 +247,9 @@ private struct PointsRow: View {
             Button(action: onToggleStar) {
                 Label(point.isStarred ? "Unstar" : "Star", systemImage: point.isStarred ? "star.slash" : "star.fill")
             }
+            Button(action: copyCoordinates) {
+                Label("Copy Coordinates", systemImage: "doc.on.doc")
+            }
             Button(action: onEdit) {
                 Label("Edit", systemImage: "pencil")
             }
@@ -258,6 +262,10 @@ private struct PointsRow: View {
 
     private func formatCoordinate(_ value: Double) -> String {
         PointsRow.coordinateFormatter.string(from: NSNumber(value: value)) ?? String(format: "%.5f", value)
+    }
+
+    private func copyCoordinates() {
+        UIPasteboard.general.string = "\(formatCoordinate(point.latitude)) \(formatCoordinate(point.longitude))"
     }
 }
 
