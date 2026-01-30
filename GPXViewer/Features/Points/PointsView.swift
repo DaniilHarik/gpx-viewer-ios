@@ -376,28 +376,25 @@ private struct AddPointView: View {
                 TextField("Longitude", text: $longitudeText)
                     .keyboardType(.numbersAndPunctuation)
                 Button(action: useCurrentLocation) {
-                    Label("Use Current Location", systemImage: "location.fill")
-                }
-                .buttonStyle(.bordered)
-                .disabled(!canRequestLocation)
-
-                if awaitingCurrentLocation {
                     HStack(spacing: 8) {
-                        ProgressView()
-                        Text("Waiting for location…")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                        Image(systemName: awaitingCurrentLocation ? "location.north.circle.fill" : "location.fill")
+                        Text(awaitingCurrentLocation ? "Locating Current Position" : "Use Current Location")
+                        Spacer()
+                        if awaitingCurrentLocation {
+                            ProgressView()
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(!canRequestLocation || awaitingCurrentLocation)
 
                 if let locationStatusMessage {
                     Text(locationStatusMessage)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                Text("Decimal degrees, for example 37.33182, -122.03118")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
 
             if let message = validationMessage {

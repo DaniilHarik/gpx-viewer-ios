@@ -75,7 +75,7 @@ Updated: 2026-01-28
 - Points
   - Points are stored on-device and persist between launches.
   - Each point includes a title, SF Symbol icon, latitude, and longitude in decimal degrees.
-  - Add point supports filling coordinates from the current location (with location permission).
+  - Add point form uses a prominent "Use Current Location" button that fills coordinates and shows progress while fetching (with location permission).
   - Points can be added, edited, starred, and deleted.
   - Starred points appear in a top group above the main points list.
   - Selecting a point shows a marker on the Map tab and centers the map on it.
