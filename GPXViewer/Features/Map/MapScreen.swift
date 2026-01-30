@@ -61,8 +61,7 @@ struct MapScreen: View {
             }
 
             VStack {
-                Spacer()
-                HStack(alignment: .bottom) {
+                HStack(alignment: .top) {
                     MeasurementControlView(
                         measurementEnabled: measurementEnabled,
                         buttonSize: controlButtonSize,
@@ -76,8 +75,7 @@ struct MapScreen: View {
                         },
                         onClear: { measurementPoints.removeAll() }
                     )
-                    .padding(.leading, 16)
-                    .padding(.bottom, buttonBottomPadding)
+                    .opacity(mapControlOpacity)
 
                     Spacer()
                     Button(action: toggleFollow) {
@@ -90,9 +88,12 @@ struct MapScreen: View {
                             )
                             .shadow(radius: 6)
                     }
-                    .padding(.trailing, 16)
-                    .padding(.bottom, buttonBottomPadding)
+                    .opacity(mapControlOpacity)
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, buttonTopPadding)
+
+                Spacer()
             }
 
             if isMapLoading {
@@ -145,12 +146,16 @@ struct MapScreen: View {
         }
     }
 
-    private var buttonBottomPadding: CGFloat {
+    private var buttonTopPadding: CGFloat {
         16
     }
 
     private var controlButtonSize: CGFloat {
         46
+    }
+
+    private var mapControlOpacity: Double {
+        1.0
     }
 
     private var measurementSummaryText: String {

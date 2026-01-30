@@ -23,8 +23,8 @@ Updated: 2026-01-28
   - Current location: "locate me" button toggles follow-user; panning or zooming stops following but keeps the location indicator visible with a heading indicator.
   - Map measurement: ruler button toggles measurement mode; taps add points and show total distance; undo removes the last segment; measurements are separate from tracks.
   - Measurement control uses the standard navigation bar background color; active state shows an orange ruler icon.
-  - Measurement summary is a compact pill attached to the measurement control near the bottom-left, with the same background color, orange accents, and drop shadow.
-  - Locate-me button uses the same background; active state shows a blue location icon.
+  - Measurement summary is a compact pill attached to the measurement control near the top-left, with the same background color, orange accents, and drop shadow.
+  - Locate-me button uses the same background; active state shows a blue location icon; measurement and locate-me controls sit at the top of the map (left/right).
   - Map view stays in 2D; perspective/pitch is disabled.
   - Selecting a track shows a loading overlay on the Map tab (after a 250 ms delay) until the track polyline is ready; base map tiles do not need to finish loading.
   - Rapid track switching always favors the most recent selection; earlier in-flight parses are ignored.
