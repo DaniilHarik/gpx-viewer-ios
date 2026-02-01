@@ -116,6 +116,43 @@ final class TracksStoreTests: XCTestCase {
         wait(for: [expectation], timeout: 4)
     }
 
+    func testImportRenamesFileToTrackName() throws {
+        let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let expectedURL = docsURL.appendingPathComponent("Morning Ride.gpx")
+        let originalURL = docsURL.appendingPathComponent("original.gpx")
+        try? FileManager.default.removeItem(at: expectedURL)
+        try? FileManager.default.removeItem(at: originalURL)
+        defer {
+            try? FileManager.default.removeItem(at: expectedURL)
+            try? FileManager.default.removeItem(at: originalURL)
+        }
+
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let sourceURL = tempDir.appendingPathComponent("original.gpx")
+        let gpx = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" creator="GPXViewer Tests">
+          <trk>
+            <name>Morning Ride</name>
+            <trkseg>
+              <trkpt lat="37.33182" lon="-122.03118"><ele>10</ele></trkpt>
+            </trkseg>
+          </trk>
+        </gpx>
+        """
+        try gpx.data(using: .utf8)?.write(to: sourceURL, options: .atomic)
+
+        let store = TracksStore()
+        store.importFiles([sourceURL])
+
+        let imported = waitForTrack(store, named: "Morning Ride", timeout: 4.0)
+        XCTAssertNotNil(imported)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
+    }
+
     private func waitForTracks(_ store: TracksStore, toContain url: URL, timeout: TimeInterval = 2.0) {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
@@ -124,5 +161,16 @@ final class TracksStoreTests: XCTestCase {
             }
             RunLoop.main.run(until: Date().addingTimeInterval(0.05))
         }
+    }
+
+    private func waitForTrack(_ store: TracksStore, named name: String, timeout: TimeInterval = 2.0) -> GPXFile? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if let match = store.files.first(where: { $0.displayName == name }) {
+                return match
+            }
+            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        }
+        return nil
     }
 }

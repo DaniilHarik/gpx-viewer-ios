@@ -1,6 +1,6 @@
 # GPX Viewer for iOS — Product Spec
 
-Updated: 2026-01-28
+Updated: 2026-01-30
 
 ## Product Overview
 - Purpose: iOS app for browsing, filtering, and inspecting personal GPX tracks on a map that is independent from online services.
@@ -39,6 +39,7 @@ Updated: 2026-01-28
   - Accept GPX files shared from other apps (share sheet/Open in) and import them into Documents with the same duplicate name handling.
   - Files opened from Files are not opened in place; they are copied into Documents.
   - Files staged in Documents/Inbox are moved into Documents on import and are not shown as separate library entries.
+  - If a GPX track includes a name, the imported file is renamed to that name (with "/" and ":" replaced by "-" and duplicate names suffixed).
   - Documents directory changes (including iCloud/Files provider updates) trigger a rescan via NSFilePresenter on a background queue.
   - Track list rescans are debounced to coalesce rapid file system updates.
   - Only `.gpx` files are indexed (case-insensitive); invalid GPX surfaces an inline error state.
@@ -57,7 +58,7 @@ Updated: 2026-01-28
  - Cache size cap (default 1 GB) with LRU eviction; trimming runs in the background and never blocks map interaction. Users can clear the cache in Settings; size is not user-configurable.
  - Offline mode uses cache-only reads; misses surface as empty tiles without retrying.
 - Map tools
-  - Measurement mode draws a dashed line between tapped points and shows the cumulative distance.
+- Measurement mode draws a thin (2 pt) dashed orange line between tapped points and shows the cumulative distance.
   - Undo action removes the most recent measurement segment.
   - Clear action removes measurement points without affecting tracks or track markers.
 - Track visualization & stats

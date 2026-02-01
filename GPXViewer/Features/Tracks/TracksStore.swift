@@ -95,10 +95,12 @@ final class TracksStore: ObservableObject {
                     } else {
                         try FileManager.default.copyItem(at: url, to: uniqueDestination)
                     }
+                    self.renameImportedFileIfNeeded(at: uniqueDestination, docsURL: docsURL)
                 } catch {
                     if isInbox {
                         do {
                             try FileManager.default.copyItem(at: url, to: uniqueDestination)
+                            self.renameImportedFileIfNeeded(at: uniqueDestination, docsURL: docsURL)
                         } catch {
                             continue
                         }
@@ -413,6 +415,46 @@ final class TracksStore: ObservableObject {
             counter += 1
         }
         return candidate
+    }
+
+    private func renameImportedFileIfNeeded(at fileURL: URL, docsURL: URL) {
+        guard let trackName = inferredTrackName(from: fileURL) else { return }
+        guard let normalizedName = normalizedTrackName(trackName) else { return }
+        let currentName = fileURL.deletingPathExtension().lastPathComponent
+        if normalizedName.caseInsensitiveCompare(currentName) == .orderedSame {
+            return
+        }
+
+        let targetURL = docsURL.appendingPathComponent(normalizedName).appendingPathExtension("gpx")
+        let uniqueTarget = Self.uniqueURL(for: targetURL)
+        guard uniqueTarget != fileURL else { return }
+
+        do {
+            try FileManager.default.moveItem(at: fileURL, to: uniqueTarget)
+        } catch {
+            return
+        }
+    }
+
+    private func inferredTrackName(from fileURL: URL) -> String? {
+        do {
+            let track = try GPXParser().parse(url: fileURL)
+            return track.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            return nil
+        }
+    }
+
+    private func normalizedTrackName(_ name: String) -> String? {
+        var trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed.lowercased().hasSuffix(".gpx") {
+            trimmed = String(trimmed.dropLast(4))
+        }
+        let invalidCharacters = CharacterSet(charactersIn: "/:")
+        let replaced = trimmed.components(separatedBy: invalidCharacters).joined(separator: "-")
+        let cleaned = replaced.trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleaned.isEmpty ? nil : cleaned
     }
 
     private func startFilePresenter() {

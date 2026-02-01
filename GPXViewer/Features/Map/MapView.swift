@@ -413,7 +413,7 @@ final class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegat
             if polyline === measurementPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
                 renderer.strokeColor = UIColor.systemOrange
-                renderer.lineWidth = 3
+                renderer.lineWidth = 2
                 renderer.lineDashPattern = [4, 6]
                 renderer.lineJoin = .round
                 renderer.lineCap = .round
